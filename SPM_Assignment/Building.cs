@@ -6,7 +6,20 @@ using System.Threading.Tasks;
 
 namespace SPM_Assignment
 {
-    internal class Building
+    internal abstract class Building
     {
+        private Building north;
+        public Building North { get; set; }
+
+        private Building south;
+        public Building South { get; set; }
+
+        private Building east;
+        public Building East { get; set; }
+
+        private Building west;
+        public Building West { get; set; }
+
+        public Building() { }
     }
 }
