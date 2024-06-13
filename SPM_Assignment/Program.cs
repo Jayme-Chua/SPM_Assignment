@@ -269,9 +269,9 @@ void FreePlayMode(Building[,] board, int score)
 {
     
     Console.Clear();
-    int rows = 5;
-    int cols = 5;
-    int expansionSize = 5;
+    //int rows = 5;
+    //int cols = 5;
+    //int expansionSize = 5;
 
 
     //char[,] board = new char[rows, cols];
@@ -305,6 +305,10 @@ void FreePlayMode(Building[,] board, int score)
     //        Console.WriteLine("Invalid input. Try again.");
     //    }
     //}
+
+    string expandGridMessage = null;
+    string shiftBuildingMessage = null;
+
     while (true)
     {
 
@@ -337,6 +341,17 @@ void FreePlayMode(Building[,] board, int score)
         Console.WriteLine("Press [0] to exit to the Main Menu.");
         Building building;
 
+        if (expandGridMessage != null)
+        {
+            Console.WriteLine(expandGridMessage);
+            expandGridMessage = null; // Clear the message after displaying
+        }
+        if (shiftBuildingMessage != null)
+        {
+            Console.WriteLine(shiftBuildingMessage);
+            shiftBuildingMessage = null; // Clear the message after displaying
+        }
+
         while (true)
         {
             Console.Write("> ");
@@ -363,7 +378,10 @@ void FreePlayMode(Building[,] board, int score)
             string input = Console.ReadLine();
             try
             {
-                if (board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 1, Convert.ToChar(input.ToUpper()[0]) - 'A'] == null)
+                int row = Convert.ToInt32(input.Substring(1)) - 1;
+                int col = Convert.ToChar(input.ToUpper()[0]) - 'A';
+
+                if (board[row, col] == null)
                 {
                     //NOT ENOUGH INFO
                     //building.North = board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 2, Convert.ToChar(input.ToUpper()[0]) - 'A'];
@@ -388,14 +406,27 @@ void FreePlayMode(Building[,] board, int score)
                     //{
                     //    board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 1, Convert.ToChar(input.ToUpper()[0]) - 'A' - 1].East = building;
                     //}
-
+                    
 
 
                     //Console.WriteLine(building.North);
                     //Console.WriteLine(building.South);
                     //Console.WriteLine(building.East);
                     //Console.WriteLine(building.West);
-                    board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 1, Convert.ToChar(input.ToUpper()[0]) - 'A'] = building;
+
+                    if (OnBorder(board, row, col))
+                    {
+                        board = ExpandGrid(board, 10);
+
+                        //The point of doing this is to shift the newly built building to its proper position after the grid expands.
+                        row += 5;
+                        col += 5;
+
+                        expandGridMessage = "\nYou placed a building at the border, the grid has expanded.";
+                        shiftBuildingMessage = string.Format("The building you placed at {0}{1}, will now be shifted to its respective position at {2}{3}", (char)('A' + col - 5), row - 4, (char)('A' + col), row + 1);
+                    }
+
+                    board[row, col] = building;
                     //Console.ReadLine();
                     break;
                 }
@@ -410,6 +441,37 @@ void FreePlayMode(Building[,] board, int score)
 
         }
     }
+}
+
+//Method to check if a building is built on the border of the grid
+bool OnBorder(Building[,] board, int row, int col)
+{
+    return row == 0 || col == 0 || row == board.GetLength(0) - 1 || col == board.GetLength(1) - 1;
+}
+
+Building[,] ExpandGrid(Building[,] oldBoard, int expansionSize)
+{
+    int oldRows = oldBoard.GetLength(0);
+    int oldCols = oldBoard.GetLength(1);
+    int newRows = oldRows + expansionSize;
+    int newCols = oldCols + expansionSize;
+
+    Building[,] newBoard = new Building[newRows, newCols];
+
+    //The point of this is to shift the buildings to their proper positions once the grid expands.
+    //Say, for instance, a building is built on A1, it shifts to F6 once the grid has expanded because that's exactly where it's built as the grid expanded.
+    int rowOffset = (newRows - oldRows) / 2;
+    int colOffset = (newCols - oldCols) / 2;
+
+    for (int i = 0; i < oldRows; i++)
+    {
+        for (int j = 0; j < oldCols; j++)
+        {
+            newBoard[i + rowOffset, j + colOffset] = oldBoard[i, j];
+        }
+    }
+
+    return newBoard;
 }
 
 void DisplayGrid(Building[,] board)
