@@ -189,7 +189,7 @@ void ArcadeMode(Building[,] board, int coins, int score)
         while (true)
         {
             Console.Write("> ");
-            string input = Console.ReadLine();
+            string input = Console.ReadLine();  
             try
             {
                 if (board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 1, Convert.ToChar(input.ToUpper()[0]) - 'A'] == null)
@@ -441,7 +441,14 @@ void DisplayGrid(Building[,] board)
             {
                 Console.Write("| " + " " + " ");
             }
-            else Console.Write("| " + board[r, c] + " ");
+            else 
+            {
+                Console.Write("| ");
+                SetConsoleColor(board[r, c]);
+                Console.Write(board[r, c] + " ");
+                Console.ResetColor(); // Reset color after printing each cell
+            }
+            
         }
         Console.WriteLine("|");
 
@@ -488,4 +495,28 @@ void Instructions()
         }
     }
 }
-//Console.ForegroundColor = ConsoleColor.White;
+
+void SetConsoleColor(Building building)
+{
+    switch (building)
+    {
+        case Residential:
+            Console.ForegroundColor = ConsoleColor.Green;
+            break;
+        case Industry:
+            Console.ForegroundColor = ConsoleColor.Red;
+            break;
+        case Commercial:
+            Console.ForegroundColor = ConsoleColor.Blue;
+            break;
+        case Park:
+            Console.ForegroundColor = ConsoleColor.Magenta;
+            break;
+        case Road:
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            break;
+        default:
+            Console.ForegroundColor = ConsoleColor.White;
+            break;
+    }
+}
