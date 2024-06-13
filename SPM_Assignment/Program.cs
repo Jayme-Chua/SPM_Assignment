@@ -1,50 +1,5 @@
 ﻿using SPM_Assignment;
 
-//For board 1
-Console.WriteLine("     A   B   C   D   E   F   G   H   I   J  ");
-Console.WriteLine("   +---+---+---+---+---+---+---+---+---+---+");
-
-char[,] board1 = {
-    { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' },
-    { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' },
-    { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' },
-    { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' },
-    { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' },
-    { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' },
-    { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' },
-    { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' },
-    { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' },
-    { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' }
-};
-
-
-//For board 2   
-Console.WriteLine("     A   B   C   D   E   F   G   H   I   J   K   L   M   N   O   P   Q   R   S   T");
-Console.WriteLine("   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+");
-
-char[,] board2 = {
-    { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' },
-    { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' },
-    { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' },
-    { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' },
-    { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' },
-    { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' },
-    { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' },
-    { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' },
-    { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' },
-    { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' },
-    { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' },
-    { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' },
-    { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' },
-    { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' },
-    { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' },
-    { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' },
-    { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' },
-    { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' },
-    { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' },
-    { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' }
-};
-
 Dictionary<string, Building> buildingsDictionary = new Dictionary<string, Building>();
 buildingsDictionary.Add("Residential", new Residential());
 buildingsDictionary.Add("Industry", new Industry());
@@ -126,13 +81,11 @@ while (true)
     else if (option == 3)
     {
         Console.WriteLine("Viewing High Scores...");
-    }
+    }   
     else if(option == 4)
     {
-        Console.WriteLine("Opening instructions...");
-        Console.WriteLine("Ngee Ann city building game is a city-building game.");
-        Console.WriteLine("You are the mayor of Ngee Ann City and the goal of the game is to build the happiest and most prosperous city possible");
-        Console.WriteLine("There are 2 game modes, one Arcade mode with limited number of coins and grid, while the other is\r\nFree Play mode with unlimited number of coins and grid");
+        Console.WriteLine("Loading instructions...");
+        Instructions();
     }
     else
     {
@@ -500,3 +453,39 @@ void DisplayGrid(Building[,] board)
         Console.WriteLine("+");
     }
 }
+
+void Instructions()
+{
+    Console.Clear();
+    Console.WriteLine("Introductions");
+    Console.WriteLine("Welcome to Ngee Ann City, a city-building strategy game where you play as the mayor.\nYour goal is to build the happiest and most prosperous city.");
+    Console.WriteLine("\nGame Modes");
+    Console.WriteLine("Arcade Mode: Start with 16 coins and a 20x20 grid. Each turn, choose one of two randomly selected buildings to construct for 1 coin.\nBuild adjacent to existing buildings after the first turn. The game ends when you run out of coins or fill the board.");
+    Console.WriteLine("\nFree Play Mode: Begin with unlimited coins and a 5x5 grid. Construct any building on any cell, expanding the grid by 5 rows/columns when building on the border.\nThe game ends when the city incurs losses for 20 consecutive turns. Build at your own pace to create a large, prosperous city.");
+    Console.WriteLine("\nBuilding Types and Scoring");
+    Console.WriteLine("Residential (R): Scores 1 point per adjacent Residential (R) or Commercial (C), 2 points per adjacent Park (O), but only 1 point if adjacent to Industry (I).\nGenerates 1 coin per turn, with clusters requiring 1 coin per turn for upkeep.");
+    Console.WriteLine("Industry (I): Scores 1 point per Industry (I) in the city. Generates 2 coins per turn, costing 1 coin per turn for upkeep, and generates 1 coin per adjacent Residential (R).");
+    Console.WriteLine("Commercial (C): Scores 1 point per adjacent Commercial (C). Generates 3 coins per turn, costing 2 coins per turn for upkeep, and generates 1 coin per adjacent Residential (R).");
+    Console.WriteLine("Park (O): Scores 1 point per adjacent Park (O). Costs 1 coin per turn for upkeep.");
+    Console.WriteLine("Road (*): Scores 1 point per connected Road (*) in the same row. Each unconnected road segment costs 1 coin for upkeep.");
+    Console.WriteLine("You can build or demolish buildings for 1 coin each");
+    Console.WriteLine("\nHappy building!");
+    Console.WriteLine("                                    +              #####");
+    Console.WriteLine("                                   / \\");
+    Console.WriteLine(" _____        _____     __________/ o \\/\\_________      _________");
+    Console.WriteLine("|o o o|_______|    |___|               | | # # #  |____|o o o o  | /\\");
+    Console.WriteLine("|o o o|  * * *|: ::|. .|               |o| # # #  |. . |o o o o  |//\\\\");
+    Console.WriteLine("|o o o|* * *  |::  |. .| []  []  []  []|o| # # #  |. . |o o o o  |((|))");
+    Console.WriteLine("|o o o|**  ** |:  :|. .| []  []  []    |o| # # #  |. . |o o o o  |((|))");
+    Console.WriteLine("|_[]__|__[]___|_||_|__<|____________;;_|_|___/\\___|_.|_|____[]___|  |");
+    while(true)
+    {
+        Console.Write("\nEnter [0] to return to main menu");
+        string input = Console.ReadLine();
+        if (input == "0")
+        {
+            return;
+        }
+    }
+}
+//Console.ForegroundColor = ConsoleColor.White;
