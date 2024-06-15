@@ -7,6 +7,7 @@ buildingsDictionary.Add("Commercial", new Commercial());
 buildingsDictionary.Add("Park", new Park());
 buildingsDictionary.Add("Road", new Road());
 
+int currentTurn = 1;
 
 while (true)
 {
@@ -231,19 +232,17 @@ void ArcadeMode(Building[,] board, int coins, int score)
                         }
                     }
 
-                    
-
-                    
-                    
-                    
-
-
-
                     //Console.WriteLine(building.North);
                     //Console.WriteLine(building.South);
                     //Console.WriteLine(building.East);
                     //Console.WriteLine(building.West);
                     board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 1, Convert.ToChar(input.ToUpper()[0]) - 'A'] = building;
+                    coins--;
+                    score += CalculateScore(building, board);
+                    currentTurn++;
+                    int generatedCoins = CalculateCoinsGenerated(board);
+                    int upkeepCost = CalculateUpkeepCost(board);
+                    coins += generatedCoins - upkeepCost;
                     //Console.ReadLine();
                     break;
                 }
@@ -427,6 +426,8 @@ void FreePlayMode(Building[,] board, int score)
                     }
 
                     board[row, col] = building;
+                    score += CalculateScore(building, board);
+                    currentTurn++;
                     //Console.ReadLine();
                     break;
                 }
@@ -521,6 +522,41 @@ void DisplayGrid(Building[,] board)
         }
         Console.WriteLine("+");
     }
+}
+static int CalculateScore(Building building, Building[,] board)
+{
+    int score = 0;
+    if (building.North != null) score += building.North.ProvidePoints();
+    if (building.South != null) score += building.South.ProvidePoints();
+    if (building.East != null) score += building.East.ProvidePoints();
+    if (building.West != null) score += building.West.ProvidePoints();
+    return score;
+}
+
+static int CalculateCoinsGenerated(Building[,] board)
+{
+    int coinsGenerated = 0;
+    foreach (Building building in board)
+    {
+        if (building != null)
+        {
+            coinsGenerated += building.GenerateCoins();
+        }
+    }
+    return coinsGenerated;
+}
+
+static int CalculateUpkeepCost(Building[,] board)
+{
+    int upkeepCost = 0;
+    foreach (Building building in board)
+    {
+        if (building != null)
+        {
+            upkeepCost += building.calculateUpkeepCost();
+        }
+    }
+    return upkeepCost;
 }
 
 void Instructions()

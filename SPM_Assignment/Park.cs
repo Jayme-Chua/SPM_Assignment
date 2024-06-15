@@ -14,5 +14,19 @@ namespace SPM_Assignment
         {
             return "O";
         }
+        public override int GenerateCoins()
+        {
+            return 0; 
+        }
+
+        public override int calculateUpkeepCost()
+        {
+            return 1; 
+        }
+
+        public override int CalculateScore()
+        {
+            return 5; 
+        }
     }
 }

@@ -21,5 +21,9 @@ namespace SPM_Assignment
         public Building West { get; set; }
 
         public Building() { }
+
+        public abstract int GenerateCoins();
+        public abstract int calculateUpkeepCost();
+        public abstract int CalculateScore();
     }
 }
