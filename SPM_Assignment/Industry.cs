@@ -24,7 +24,7 @@ namespace SPM_Assignment
             return 3;
         }
 
-        public override int CalculateScore()
+        public override int ProvidePoints()
         {
             return 20; 
         }

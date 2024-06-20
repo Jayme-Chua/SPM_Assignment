@@ -24,6 +24,6 @@ namespace SPM_Assignment
 
         public abstract int GenerateCoins();
         public abstract int calculateUpkeepCost();
-        public abstract int CalculateScore();
+        public abstract int ProvidePoints();
     }
 }
