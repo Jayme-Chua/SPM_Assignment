@@ -1,4 +1,9 @@
-﻿using SPM_Assignment;
+﻿using System;
+using System.IO;
+using System.Linq;
+using System.Globalization;
+
+using SPM_Assignment;
 
 Dictionary<string, Building> buildingsDictionary = new Dictionary<string, Building>();
 buildingsDictionary.Add("Residential", new Residential());
@@ -8,9 +13,12 @@ buildingsDictionary.Add("Park", new Park());
 buildingsDictionary.Add("Road", new Road());
 
 int currentTurn = 1;
+const string arcadeFilePath = "arcade_scores.csv";
+const string freePlayFilePath = "freeplay_scores.csv";
 
 while (true)
 {
+
     MainMenu();
 
     int option = -1; 
@@ -82,6 +90,24 @@ while (true)
     else if (option == 3)
     {
         Console.WriteLine("Viewing High Scores...");
+        Console.WriteLine("Select Mode to View High Scores:");
+        Console.WriteLine("1. Arcade Mode");
+        Console.WriteLine("2. Free Play Mode");
+        var viewChoice = Console.ReadLine();
+
+        if (viewChoice == "1")
+        {
+            DisplayHighScores(arcadeFilePath);
+        }
+        else if (viewChoice == "2")
+        {
+            DisplayHighScores(freePlayFilePath);
+        }
+        else
+        {
+            Console.WriteLine("Invalid choice.");
+        }
+        
     }   
     else if(option == 4)
     {
@@ -245,6 +271,11 @@ void ArcadeMode(Building[,] board, int coins, int score)
                     coins += generatedCoins - upkeepCost;
                     //Console.ReadLine();
                     break;
+                    /* 
+                    After condition for game over, to save high score
+                    EndGame(arcadeFilePath, score);
+                    return;
+                    */
                 }
                 else Console.WriteLine("Tile is already occupied. Try again.");
                 
@@ -430,6 +461,11 @@ void FreePlayMode(Building[,] board, int score)
                     currentTurn++;
                     //Console.ReadLine();
                     break;
+                    /*
+                    After game over condition code, to save high score
+                    EndGame(freePlayFilePath, score);
+                    return;
+                    */
                 }
                 else Console.WriteLine("Tile is already occupied. Try again.");
 
@@ -585,7 +621,7 @@ void Instructions()
     Console.WriteLine("|_[]__|__[]___|_||_|__<|____________;;_|_|___/\\___|_.|_|____[]___|  |");
     while(true)
     {
-        Console.Write("\nEnter [0] to return to main menu");
+        Console.Write("\nEnter [0] to return to main menu ");
         string input = Console.ReadLine();
         if (input == "0")
         {
@@ -616,5 +652,64 @@ void SetConsoleColor(Building building)
         default:
             Console.ForegroundColor = ConsoleColor.White;
             break;
+    }
+}
+
+// Method to read high scores from a CSV file
+List<Tuple<string, int>> LoadHighScores(string filePath)
+{
+    var highScores = new List<Tuple<string, int>>();
+    var lines = File.ReadAllLines(filePath);
+
+    foreach (var line in lines.Skip(1)) // Skip header
+    {
+        var parts = line.Split(',');
+
+        highScores.Add(new Tuple<string, int>(
+            parts[0],
+            int.Parse(parts[1])
+        ));
+    }
+
+    return highScores;
+}
+
+void DisplayHighScores(string filePath)
+{
+    var highScores = LoadHighScores(filePath);
+    Console.WriteLine("High Scores:");
+    foreach (var score in highScores.OrderByDescending(s => s.Item2).Take(10))
+    {
+        Console.WriteLine($"{score.Item1} - {score.Item2}");
+    }
+    
+
+    while (true)
+    {
+        Console.Write("\nEnter [0] to return to main menu ");
+        string input = Console.ReadLine();
+        if (input == "0")
+        {
+            return;
+        }
+    }
+}
+
+
+void EndGame(string filePath, int score)
+{
+    Console.WriteLine($"Game over. Your final score is {score}.");
+
+    var highScores = LoadHighScores(filePath);
+    if (highScores.Count < 10 || score > highScores.Last().Item2)
+    {
+        Console.Write("Congratulations! You made it to the top 10. Enter your name: ");
+        string playerName = Console.ReadLine();
+        highScores.Add(new Tuple<string, int>(playerName, score));
+        highScores = highScores.OrderByDescending(s => s.Item2).Take(10).ToList(); // Keep top 10 scores
+
+        var lines = new List<string> { "Name,Score" }; // Add the header
+        lines.AddRange(highScores.Select(score => $"{score.Item1},{score.Item2}"));
+        File.WriteAllLines(filePath, lines);
     }
 }
