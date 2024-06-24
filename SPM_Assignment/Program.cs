@@ -189,7 +189,7 @@ void ArcadeMode(Building[,] board, int coins, int score)
         string[] buildings = { "Residential", "Industry", "Commercial", "Park", "Road" };
         Random random = new Random();
         string[] validChoices = { buildings[random.Next(0, buildings.Length)], buildings[random.Next(0, buildings.Length)] };
-        Console.WriteLine($"[1] {buildingsDictionary[validChoices[0]]} ({validChoices[0]})\n[2] {buildingsDictionary[validChoices[1]]} ({validChoices[1]})");
+        Console.WriteLine($"[1] {buildingsDictionary[validChoices[0]]} ({validChoices[0]})\n[2] {buildingsDictionary[validChoices[1]]} ({validChoices[1]})\n[3] Demolish building");
         Console.WriteLine("Press [0] to exit to the Main Menu.");
         Building building;
 
@@ -204,89 +204,161 @@ void ArcadeMode(Building[,] board, int coins, int score)
             else if (input == "1" || input == "2")
             {
                 building = buildingsDictionary[validChoices[Convert.ToInt32(input) - 1]];
+                Console.WriteLine("Select a location (e.g. E7)");
+                while (true)
+                {
+                    Console.Write("> ");
+                    input = Console.ReadLine();
+                    try
+                    {
+                        int row = Convert.ToInt32(input.Substring(1, input.Length - 1)) - 1;
+                        int column = Convert.ToChar(input.ToUpper()[0]) - 'A';
+
+                        if (board[row, column] == null)
+                        {
+                            if (row + 1 != 1)
+                            {
+                                building.North = board[row - 1, column];
+
+                                if (board[row - 1, column] != null)
+                                {
+                                    board[row - 1, column].South = building;
+                                }
+                            }
+                            if (row + 1 != 20)
+                            {
+                                building.South = board[row + 1, column];
+
+                                if (board[row + 1, column] != null)
+                                {
+                                    board[row + 1, column].North = building;
+                                }
+                            }
+                            if (input.ToUpper()[0] != 'T')
+                            {
+                                building.East = board[row, column + 1];
+
+                                if (board[row, column + 1] != null)
+                                {
+                                    board[row, column + 1].West = building;
+                                }
+                            }
+                            if (input.ToUpper()[0] != 'A')
+                            {
+                                building.West = board[row, column - 1];
+
+                                if (board[row, column - 1] != null)
+                                {
+                                    board[row, column - 1].East = building;
+                                }
+                            }
+
+                            //Console.WriteLine(building.North);
+                            //Console.WriteLine(building.South);
+                            //Console.WriteLine(building.East);
+                            //Console.WriteLine(building.West);
+                            board[row, column] = building;
+                            coins--;
+                            score += CalculateScore(building, board);
+                            currentTurn++;
+                            int generatedCoins = CalculateCoinsGenerated(board);
+                            int upkeepCost = CalculateUpkeepCost(board);
+                            coins += generatedCoins - upkeepCost;
+                            //Console.ReadLine();
+                            break;
+                            /* 
+                            After condition for game over, to save high score
+                            EndGame(arcadeFilePath, score);
+                            return;
+                            */
+                        }
+                        else Console.WriteLine("Tile is already occupied. Try again.");
+
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Invalid input. Try again.");
+                        Console.WriteLine(e);
+                    }
+
+                }
                 break;
-            } 
+            }
+            else if (input == "3")
+            {
+                if (BoardEmpty(board))
+                {
+                    Console.WriteLine("No buildings to demolish!");
+
+                }
+                else
+                {
+
+
+                    Console.WriteLine("Select a building to demolish (e.g. E7)");
+                    while (true)
+                    {
+
+                        Console.Write("> ");
+                        input = Console.ReadLine();
+                        try
+                        {
+
+                            int row = Convert.ToInt32(input.Substring(1, input.Length - 1)) - 1;
+                            int column = Convert.ToChar(input.ToUpper()[0]) - 'A';
+                            if (board[row, column] == null)
+                            {
+                                Console.WriteLine("There's nothing to demolish, try again.");
+                            }
+                            else
+                            {
+                                // De-link surrounding buildings
+                                if (row != 1)
+                                {
+                                    if (board[row, column].North != null) board[row, column].North.South = null;
+                                }
+
+                                if (row != 20)
+                                {
+                                    if (board[row, column].South != null) board[row, column].South.North = null;
+                                }
+
+                                if (input.ToUpper()[0] != 'T')
+                                {
+                                    if (board[row, column].East != null) board[row, column].East.West = null;
+                                }
+
+                                if (input.ToUpper()[0] != 'A')
+                                {
+                                    if (board[row, column].West != null) board[row, column].West.East = null;
+                                }
+                                board[row, column] = null;
+                                break;
+                            }
+
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine("Invalid input. Try again.");
+                            Console.WriteLine(e);
+
+                        }
+
+                    }
+                    break;
+                }
+
+
+
+
+            }
             else
             {
                 Console.WriteLine("Invalid input. Try again.");
             }
         }
 
-        Console.WriteLine("Select a location (e.g. E7)");
-        while (true)
-        {
-            Console.Write("> ");
-            string input = Console.ReadLine();  
-            try
-            {
-                if (board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 1, Convert.ToChar(input.ToUpper()[0]) - 'A'] == null)
-                {
-                    if (Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) != 1)
-                    {
-                        building.North = board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 2, Convert.ToChar(input.ToUpper()[0]) - 'A'];
-
-                        if (board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 2, Convert.ToChar(input.ToUpper()[0]) - 'A'] != null)
-                        {
-                            board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 2, Convert.ToChar(input.ToUpper()[0]) - 'A'].South = building;
-                        }
-                    }
-                    if (Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) != 20)
-                    {
-                        building.South = board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 0, Convert.ToChar(input.ToUpper()[0]) - 'A'];
-
-                        if (board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 0, Convert.ToChar(input.ToUpper()[0]) - 'A'] != null)
-                        {
-                            board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 0, Convert.ToChar(input.ToUpper()[0]) - 'A'].North = building;
-                        }
-                    }
-                    if (input.ToUpper()[0] != 'T')
-                    {
-                        building.East = board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 1, Convert.ToChar(input.ToUpper()[0]) - 'A' + 1];
-
-                        if (board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 1, Convert.ToChar(input.ToUpper()[0]) - 'A' + 1] != null)
-                        {
-                            board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 1, Convert.ToChar(input.ToUpper()[0]) - 'A' + 1].West = building;
-                        }
-                    }
-                    if (input.ToUpper()[0] != 'A')
-                    {
-                        building.West = board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 1, Convert.ToChar(input.ToUpper()[0]) - 'A' - 1];
-
-                        if (board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 1, Convert.ToChar(input.ToUpper()[0]) - 'A' - 1] != null)
-                        {
-                            board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 1, Convert.ToChar(input.ToUpper()[0]) - 'A' - 1].East = building;
-                        }
-                    }
-
-                    //Console.WriteLine(building.North);
-                    //Console.WriteLine(building.South);
-                    //Console.WriteLine(building.East);
-                    //Console.WriteLine(building.West);
-                    board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 1, Convert.ToChar(input.ToUpper()[0]) - 'A'] = building;
-                    coins--;
-                    score += CalculateScore(building, board);
-                    currentTurn++;
-                    int generatedCoins = CalculateCoinsGenerated(board);
-                    int upkeepCost = CalculateUpkeepCost(board);
-                    coins += generatedCoins - upkeepCost;
-                    //Console.ReadLine();
-                    break;
-                    /* 
-                    After condition for game over, to save high score
-                    EndGame(arcadeFilePath, score);
-                    return;
-                    */
-                }
-                else Console.WriteLine("Tile is already occupied. Try again.");
-                
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Invalid input. Try again.");
-                Console.WriteLine(e);
-            }
-
-        }
+        
 
 
 
@@ -367,7 +439,7 @@ void FreePlayMode(Building[,] board, int score)
         string[] buildings = { "Residential", "Industry", "Commercial", "Park", "Road" };
         Random random = new Random();
         string[] validChoices = { buildings[random.Next(0, buildings.Length)], buildings[random.Next(0, buildings.Length)] };
-        Console.WriteLine($"[1] {buildingsDictionary[validChoices[0]]} ({validChoices[0]})\n[2] {buildingsDictionary[validChoices[1]]} ({validChoices[1]})");
+        Console.WriteLine($"[1] {buildingsDictionary[validChoices[0]]} ({validChoices[0]})\n[2] {buildingsDictionary[validChoices[1]]} ({validChoices[1]})\n[3] Demolish building");
         Console.WriteLine("Press [0] to exit to the Main Menu.");
         Building building;
 
@@ -393,7 +465,145 @@ void FreePlayMode(Building[,] board, int score)
             else if (input == "1" || input == "2")
             {
                 building = buildingsDictionary[validChoices[Convert.ToInt32(input) - 1]];
+                Console.WriteLine("Select a location (e.g. E7)");
+                while (true)
+                {
+                    Console.Write("> ");
+                    input = Console.ReadLine();
+                    try
+                    {
+                        int row = Convert.ToInt32(input.Substring(1)) - 1;
+                        int col = Convert.ToChar(input.ToUpper()[0]) - 'A';
+
+                        if (board[row, col] == null)
+                        {
+                            //NOT ENOUGH INFO
+                            //building.North = board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 2, Convert.ToChar(input.ToUpper()[0]) - 'A'];
+                            //building.South = board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 0, Convert.ToChar(input.ToUpper()[0]) - 'A'];
+                            //building.East = board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 1, Convert.ToChar(input.ToUpper()[0]) - 'A' + 1];
+                            //building.West = board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 1, Convert.ToChar(input.ToUpper()[0]) - 'A' - 1];
+
+                            //if (board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 2, Convert.ToChar(input.ToUpper()[0]) - 'A'] != null)
+                            //{
+                            //    board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 2, Convert.ToChar(input.ToUpper()[0]) - 'A'].South = building;
+                            //}
+
+                            //if (board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 0, Convert.ToChar(input.ToUpper()[0]) - 'A'] != null)
+                            //{
+                            //    board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 0, Convert.ToChar(input.ToUpper()[0]) - 'A'].North = building;
+                            //}
+                            //if (board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 1, Convert.ToChar(input.ToUpper()[0]) - 'A' + 1] != null)
+                            //{
+                            //    board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 1, Convert.ToChar(input.ToUpper()[0]) - 'A' + 1].West = building;
+                            //}
+                            //if (board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 1, Convert.ToChar(input.ToUpper()[0]) - 'A' - 1] != null)
+                            //{
+                            //    board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 1, Convert.ToChar(input.ToUpper()[0]) - 'A' - 1].East = building;
+                            //}
+
+
+
+                            //Console.WriteLine(building.North);
+                            //Console.WriteLine(building.South);
+                            //Console.WriteLine(building.East);
+                            //Console.WriteLine(building.West);
+
+                            if (OnBorder(board, row, col))
+                            {
+                                board = ExpandGrid(board, 10);
+
+                                //The point of doing this is to shift the newly built building to its proper position after the grid expands.
+                                row += 5;
+                                col += 5;
+
+                                expandGridMessage = "\nYou placed a building at the border, the grid has expanded.";
+                                shiftBuildingMessage = string.Format("The building you placed at {0}{1}, will now be shifted to its respective position at {2}{3}", (char)('A' + col - 5), row - 4, (char)('A' + col), row + 1);
+                            }
+
+                            board[row, col] = building;
+                            score += CalculateScore(building, board);
+                            currentTurn++;
+                            //Console.ReadLine();
+                            break;
+                            /*
+                            After game over condition code, to save high score
+                            EndGame(freePlayFilePath, score);
+                            return;
+                            */
+                        }
+                        else Console.WriteLine("Tile is already occupied. Try again.");
+
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Invalid input. Try again.");
+                        Console.WriteLine(e);
+                    }
+
+                }
                 break;
+            }
+            else if (input == "3")
+            {
+                if (BoardEmpty(board))
+                {
+                    Console.WriteLine("No buildings to demolish!");
+
+                }
+                else
+                {
+                    Console.WriteLine("Select a building to demolish (e.g. E7)");
+                    while (true)
+                    {
+
+                        Console.Write("> ");
+                        input = Console.ReadLine();
+                        try
+                        {
+
+                            int row = Convert.ToInt32(input.Substring(1, input.Length - 1)) - 1;
+                            int column = Convert.ToChar(input.ToUpper()[0]) - 'A';
+                            if (board[row, column] == null)
+                            {
+                                Console.WriteLine("There's nothing to demolish, try again.");
+                            }
+                            else
+                            {
+                                // De-link surrounding buildings
+                                if (row != 1)
+                                {
+                                    if (board[row, column].North != null) board[row, column].North.South = null;
+                                }
+
+                                if (row != 20)
+                                {
+                                    if (board[row, column].South != null) board[row, column].South.North = null;
+                                }
+
+                                if (input.ToUpper()[0] != 'T')
+                                {
+                                    if (board[row, column].East != null) board[row, column].East.West = null;
+                                }
+
+                                if (input.ToUpper()[0] != 'A')
+                                {
+                                    if (board[row, column].West != null) board[row, column].West.East = null;
+                                }
+                                board[row, column] = null;
+                                break;
+                            }
+
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine("Invalid input. Try again.");
+                            Console.WriteLine(e);
+
+                        }
+
+                    }
+                    break;
+                }
             }
             else
             {
@@ -401,83 +611,22 @@ void FreePlayMode(Building[,] board, int score)
             }
         }
 
-        Console.WriteLine("Select a location (e.g. E7)");
-        while (true)
+        
+    }
+}
+
+bool BoardEmpty(Building[,] board)
+{
+    int rows = board.GetLength(0);
+    int columns = board.GetLength(1);
+    for (int i = 0; i < rows; i++)
+    {
+        for (int j = 0; j < columns; j++)
         {
-            Console.Write("> ");
-            string input = Console.ReadLine();
-            try
-            {
-                int row = Convert.ToInt32(input.Substring(1)) - 1;
-                int col = Convert.ToChar(input.ToUpper()[0]) - 'A';
-
-                if (board[row, col] == null)
-                {
-                    //NOT ENOUGH INFO
-                    //building.North = board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 2, Convert.ToChar(input.ToUpper()[0]) - 'A'];
-                    //building.South = board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 0, Convert.ToChar(input.ToUpper()[0]) - 'A'];
-                    //building.East = board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 1, Convert.ToChar(input.ToUpper()[0]) - 'A' + 1];
-                    //building.West = board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 1, Convert.ToChar(input.ToUpper()[0]) - 'A' - 1];
-
-                    //if (board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 2, Convert.ToChar(input.ToUpper()[0]) - 'A'] != null)
-                    //{
-                    //    board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 2, Convert.ToChar(input.ToUpper()[0]) - 'A'].South = building;
-                    //}
-
-                    //if (board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 0, Convert.ToChar(input.ToUpper()[0]) - 'A'] != null)
-                    //{
-                    //    board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 0, Convert.ToChar(input.ToUpper()[0]) - 'A'].North = building;
-                    //}
-                    //if (board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 1, Convert.ToChar(input.ToUpper()[0]) - 'A' + 1] != null)
-                    //{
-                    //    board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 1, Convert.ToChar(input.ToUpper()[0]) - 'A' + 1].West = building;
-                    //}
-                    //if (board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 1, Convert.ToChar(input.ToUpper()[0]) - 'A' - 1] != null)
-                    //{
-                    //    board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 1, Convert.ToChar(input.ToUpper()[0]) - 'A' - 1].East = building;
-                    //}
-                    
-
-
-                    //Console.WriteLine(building.North);
-                    //Console.WriteLine(building.South);
-                    //Console.WriteLine(building.East);
-                    //Console.WriteLine(building.West);
-
-                    if (OnBorder(board, row, col))
-                    {
-                        board = ExpandGrid(board, 10);
-
-                        //The point of doing this is to shift the newly built building to its proper position after the grid expands.
-                        row += 5;
-                        col += 5;
-
-                        expandGridMessage = "\nYou placed a building at the border, the grid has expanded.";
-                        shiftBuildingMessage = string.Format("The building you placed at {0}{1}, will now be shifted to its respective position at {2}{3}", (char)('A' + col - 5), row - 4, (char)('A' + col), row + 1);
-                    }
-
-                    board[row, col] = building;
-                    score += CalculateScore(building, board);
-                    currentTurn++;
-                    //Console.ReadLine();
-                    break;
-                    /*
-                    After game over condition code, to save high score
-                    EndGame(freePlayFilePath, score);
-                    return;
-                    */
-                }
-                else Console.WriteLine("Tile is already occupied. Try again.");
-
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Invalid input. Try again.");
-                Console.WriteLine(e);
-            }
-
+            if (board[i, j] != null) return false;
         }
     }
+    return true;
 }
 
 //Method to check if a building is built on the border of the grid
