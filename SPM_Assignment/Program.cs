@@ -69,7 +69,7 @@ while (true)
             else if (gameOption == 2)
             {
                 Console.WriteLine("Starting Free Play Mode...");
-                FreePlayMode(CreateEmptyBoard(5,5), 0);
+                FreePlayMode(CreateEmptyBoard(5,5), 0, 0);
             }
             else if (gameOption == 3)
             {
@@ -271,6 +271,12 @@ void ArcadeMode(Building[,] board, int coins, int score)
                             EndGame(arcadeFilePath, score);
                             return;
                             */
+
+                            if (coins <= 0 || IsBoardFull)
+                            {
+                                //code to run when game end
+                            }
+
                         }
                         else Console.WriteLine("Tile is already occupied. Try again.");
 
@@ -367,7 +373,7 @@ void ArcadeMode(Building[,] board, int coins, int score)
 }
 
 
-void FreePlayMode(Building[,] board, int score)
+void FreePlayMode(Building[,] board, int score, int lostCount)
 {
     
     Console.Clear();
@@ -530,6 +536,24 @@ void FreePlayMode(Building[,] board, int score)
                             EndGame(freePlayFilePath, score);
                             return;
                             */
+
+                            int generatedCoins = CalculateCoinsGenerated(board);
+                            int upkeepCost = CalculateUpkeepCost(board);
+
+                            if (upkeepCost > generatedCoins)
+                            {
+                                lostCount++;
+
+                                if (lostCount >= 20)
+                                {
+                                    //code to run if game end
+                                }
+                            }
+                            else
+                            {
+                                lostCount = 0;
+                            }
+
                         }
                         else Console.WriteLine("Tile is already occupied. Try again.");
 
@@ -901,4 +925,20 @@ void EndGame(string filePath, int score)
         lines.AddRange(highScores.Select(score => $"{score.Item1},{score.Item2}"));
         File.WriteAllLines(filePath, lines);
     }
+}
+
+//Function to check if the board if full
+bool IsBoardFull(Building[,] board)
+{
+    for (int i = 0; i < board.GetLength(0); i++)
+    {
+        for (int j = 0; j < board.GetLength(1); j++)
+        {
+            if (board[i, j] == null)
+            {
+                return false; //return false if any element is null
+            }
+        }
+    }
+    return true;
 }
