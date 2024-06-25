@@ -14,19 +14,31 @@ namespace SPM_Assignment
         {
             return "R";
         }
-        public override int GenerateCoins()
+        public override int calculateUpkeepCost(Building adjacentBuilding)
         {
-            return 1; 
+            if (adjacentBuilding is Residential)
+            {
+                return 1;
+            }
+            return 0;
+        }
+        public override int GenerateCoins(Building adjacentBuilding)
+        {
+            return 1;
         }
 
-        public override int calculateUpkeepCost()
+        public override int ProvidePoints(Building adjacentBuilding)
         {
-            return 1; 
-        }
-
-        public override int ProvidePoints()
-        {
-            return 10;
+            if (adjacentBuilding is Residential)
+                return 1;
+            if (adjacentBuilding is Commercial)
+                return 1;
+            if (adjacentBuilding is Park)
+                return 2;
+            if (adjacentBuilding is Industry)
+                return 1;
+            return 0;
         }
     }
 }
+

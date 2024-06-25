@@ -711,23 +711,63 @@ void DisplayGrid(Building[,] board)
 static int CalculateScore(Building building, Building[,] board)
 {
     int score = 0;
-    if (building.North != null) score += building.North.ProvidePoints();
-    if (building.South != null) score += building.South.ProvidePoints();
-    if (building.East != null) score += building.East.ProvidePoints();
-    if (building.West != null) score += building.West.ProvidePoints();
+    int rows = board.GetLength(0);
+    int cols = board.GetLength(1);
+
+    for (int r = 0; r < rows; r++)
+    {
+        for (int c = 0; c < cols; c++)
+        {
+            if (board[r, c] == building)
+            {
+                // Check surrounding buildings
+                if (r > 0 && board[r - 1, c] != null) // North
+                    score += building.ProvidePoints(board[r - 1, c]);
+
+                if (r < rows - 1 && board[r + 1, c] != null) // South
+                    score += building.ProvidePoints(board[r + 1, c]);
+
+                if (c > 0 && board[r, c - 1] != null) // West
+                    score += building.ProvidePoints(board[r, c - 1]);
+
+                if (c < cols - 1 && board[r, c + 1] != null) // East
+                    score += building.ProvidePoints(board[r, c + 1]);
+            }
+        }
+    }
+
     return score;
 }
 
 static int CalculateCoinsGenerated(Building[,] board)
 {
     int coinsGenerated = 0;
-    foreach (Building building in board)
+    int rows = board.GetLength(0);
+    int cols = board.GetLength(1);
+
+    for (int r = 0; r < rows; r++)
     {
-        if (building != null)
+        for (int c = 0; c < cols; c++)
         {
-            coinsGenerated += building.GenerateCoins();
+            Building building = board[r, c];
+            if (building != null)
+            {
+                // Check surrounding buildings
+                if (r > 0 && board[r - 1, c] != null) // North
+                    coinsGenerated += building.GenerateCoins(board[r - 1, c]);
+
+                if (r < rows - 1 && board[r + 1, c] != null) // South
+                    coinsGenerated += building.GenerateCoins(board[r + 1, c]);
+
+                if (c > 0 && board[r, c - 1] != null) // West
+                    coinsGenerated += building.GenerateCoins(board[r, c - 1]);
+
+                if (c < cols - 1 && board[r, c + 1] != null) // East
+                    coinsGenerated += building.GenerateCoins(board[r, c + 1]);
+            }
         }
     }
+
     return coinsGenerated;
 }
 
@@ -738,7 +778,7 @@ static int CalculateUpkeepCost(Building[,] board)
     {
         if (building != null)
         {
-            upkeepCost += building.calculateUpkeepCost();
+            upkeepCost += building.calculateUpkeepCost(building);
         }
     }
     return upkeepCost;
