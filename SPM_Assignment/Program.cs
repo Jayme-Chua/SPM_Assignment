@@ -265,17 +265,14 @@ void ArcadeMode(Building[,] board, int coins, int score)
                             int upkeepCost = CalculateUpkeepCost(board);
                             coins += generatedCoins - upkeepCost;
                             //Console.ReadLine();
-                            break;
-                            /* 
-                            After condition for game over, to save high score
-                            EndGame(arcadeFilePath, score);
-                            return;
-                            */
-
-                            if (coins <= 0 || IsBoardFull)
+                            if (coins <= 0 || IsBoardFull(board))
                             {
                                 //code to run when game end
+                                //save high score
+                                EndGame(arcadeFilePath, score);
+                                return;
                             }
+                            break;                           
 
                         }
                         else Console.WriteLine("Tile is already occupied. Try again.");
@@ -530,12 +527,7 @@ void FreePlayMode(Building[,] board, int score, int lostCount)
                             score += CalculateScore(building, board);
                             currentTurn++;
                             //Console.ReadLine();
-                            break;
-                            /*
-                            After game over condition code, to save high score
-                            EndGame(freePlayFilePath, score);
-                            return;
-                            */
+                            
 
                             int generatedCoins = CalculateCoinsGenerated(board);
                             int upkeepCost = CalculateUpkeepCost(board);
@@ -547,12 +539,16 @@ void FreePlayMode(Building[,] board, int score, int lostCount)
                                 if (lostCount >= 20)
                                 {
                                     //code to run if game end
+                                    //Save high score
+                                    EndGame(freePlayFilePath, score);
+                                    return;
                                 }
                             }
                             else
                             {
                                 lostCount = 0;
                             }
+                            break;
 
                         }
                         else Console.WriteLine("Tile is already occupied. Try again.");
