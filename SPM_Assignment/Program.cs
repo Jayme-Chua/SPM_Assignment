@@ -410,9 +410,14 @@ void FreePlayMode(Building[,] board, int score, int lostCount)
     //        Console.WriteLine("Invalid input. Try again.");
     //    }
     //}
-
+    int startRow = 0;
+    int startCol = 0;
+    int viewRows = 25;
+    int viewCols = 25;
     string expandGridMessage = null;
     string shiftBuildingMessage = null;
+    bool showBorderMessage = false;
+    bool scrollMessage = false;
 
     while (true)
     {
@@ -435,7 +440,7 @@ void FreePlayMode(Building[,] board, int score, int lostCount)
         //    }
         //}
 
-        DisplayGrid(board);
+        DisplayGridFreePlay(board, startRow, startCol, viewRows, viewCols);
 
         Console.WriteLine("\nCoins: " + "Unlimited" + "\tScore: " + score);
 
@@ -457,6 +462,17 @@ void FreePlayMode(Building[,] board, int score, int lostCount)
             shiftBuildingMessage = null; // Clear the message after displaying
         }
 
+        if (!scrollMessage && (board.GetLength(0) > 25 || board.GetLength(1) > 25))
+        {
+            Console.WriteLine("\nGrid has expanded beyond 25x25. You can start scrolling by using W, A, S, or D to move around.");
+            scrollMessage = true;
+        }
+
+        if (showBorderMessage)
+        {
+            Console.WriteLine("\nYou have reached the border of the grid, use W, A, S or D to scroll around.");
+            showBorderMessage = false; // Reset flag after displaying the message
+        }
         while (true)
         {
             Console.Write("> ");
@@ -472,11 +488,16 @@ void FreePlayMode(Building[,] board, int score, int lostCount)
                 while (true)
                 {
                     Console.Write("> ");
-                    input = Console.ReadLine();
+                    input = Console.ReadLine().ToUpper();
                     try
                     {
-                        int row = Convert.ToInt32(input.Substring(1)) - 1;
-                        int col = Convert.ToChar(input.ToUpper()[0]) - 'A';
+                        //int row = Convert.ToInt32(input.Substring(1)) - 1;
+                        //int col = Convert.ToChar(input.ToUpper()[0]) - 'A';
+                        int firstDigitIndex = input.IndexOfAny("0123456789".ToCharArray());
+                        string columnInput = input.Substring(0, firstDigitIndex);
+                        string rowInput = input.Substring(firstDigitIndex);
+                        int col = GetColumnIndex(columnInput);
+                        int row = Convert.ToInt32(rowInput) - 1;
 
                         if (board[row, col] == null)
                         {
@@ -520,7 +541,7 @@ void FreePlayMode(Building[,] board, int score, int lostCount)
                                 col += 5;
 
                                 expandGridMessage = "\nYou placed a building at the border, the grid has expanded.";
-                                shiftBuildingMessage = string.Format("The building you placed at {0}{1}, will now be shifted to its respective position at {2}{3}", (char)('A' + col - 5), row - 4, (char)('A' + col), row + 1);
+                                shiftBuildingMessage = string.Format("The building you placed at {0}{1}, will now be shifted to its respective position at {2}{3}", GetColumnName(col -5), row - 4, GetColumnName(col), row + 1);
                             }
 
                             board[row, col] = building;
@@ -577,12 +598,16 @@ void FreePlayMode(Building[,] board, int score, int lostCount)
                     {
 
                         Console.Write("> ");
-                        input = Console.ReadLine();
+                        input = Console.ReadLine().ToUpper();
                         try
                         {
-
-                            int row = Convert.ToInt32(input.Substring(1, input.Length - 1)) - 1;
-                            int column = Convert.ToChar(input.ToUpper()[0]) - 'A';
+                            //int row = Convert.ToInt32(input.Substring(1, input.Length - 1)) - 1;
+                            //int column = Convert.ToChar(input.ToUpper()[0]) - 'A';
+                            int firstDigitIndex = input.IndexOfAny("0123456789".ToCharArray());
+                            string columnInput = input.Substring(0, firstDigitIndex);
+                            string rowInput = input.Substring(firstDigitIndex);
+                            int column = GetColumnIndex(columnInput);
+                            int row = Convert.ToInt32(rowInput) - 1;
                             if (board[row, column] == null)
                             {
                                 Console.WriteLine("There's nothing to demolish, try again.");
@@ -625,6 +650,54 @@ void FreePlayMode(Building[,] board, int score, int lostCount)
                     break;
                 }
             }
+            else if (input.ToUpper() == "W")
+            {
+                if (startRow > 0)
+                {
+                    startRow -= 25;
+                }
+                else
+                {
+                    showBorderMessage = true; // Set flag to show message
+                }
+                break;
+            }
+            else if (input.ToUpper() == "S")
+            {
+                if (startRow + viewRows < board.GetLength(0))
+                {
+                    startRow += 25;
+                }
+                else
+                {
+                    showBorderMessage = true; // Set flag to show message
+                }
+                break;
+            }
+            else if (input.ToUpper() == "A")
+            {
+                if (startCol > 0)
+                {
+                    startCol -= 25;
+                }
+                else
+                {
+                    showBorderMessage = true; // Set flag to show message
+                }
+                break;
+            }
+            else if (input.ToUpper() == "D")
+            {
+                if (startCol + viewCols < board.GetLength(1))
+                {
+                    startCol += 25;
+                }
+                else
+                {
+                    showBorderMessage = true; // Set flag to show message
+                }
+                break;
+            }
             else
             {
                 Console.WriteLine("Invalid input. Try again.");
@@ -633,6 +706,86 @@ void FreePlayMode(Building[,] board, int score, int lostCount)
 
         
     }
+}
+
+void DisplayGridFreePlay(Building[,] board, int startRow, int startCol, int viewRows, int viewCols)
+{
+    int rows = board.GetLength(0);
+    int cols = board.GetLength(1);
+
+    Console.Write("     ");
+    for (int c = startCol; c < Math.Min(startCol + viewCols, cols); c++)
+    {
+        string columnLabel = GetColumnName(c);
+        Console.Write($" {columnLabel,-2} ");
+
+        //Console.Write(" " + GetColumnName(c) + "  ");
+    }
+    Console.WriteLine();
+
+    Console.Write("    ");
+    for (int c = startCol; c < Math.Min(startCol + viewCols, cols); c++)
+    {
+        Console.Write("+---");
+    }
+    Console.WriteLine("+");
+
+    for (int r = startRow; r < Math.Min(startRow + viewRows, rows); r++)
+    {
+        string rowNumber = (r + 1).ToString();
+        if (rowNumber.Length < 3)
+        {
+            Console.Write(" " + (r + 1).ToString("D2") + " ");
+        }
+        else
+        {
+            Console.Write(" " + (r + 1).ToString("D2"));
+        }
+
+        for (int c = startCol; c < Math.Min(startCol + viewCols, cols); c++)
+        {
+            if (board[r, c] == null)
+            {
+                Console.Write("| " + " " + " ");
+            }
+            else
+            {
+                Console.Write("| ");
+                SetConsoleColor(board[r, c]);
+                Console.Write(board[r, c] + " ");
+                Console.ResetColor();
+            }
+        }
+        Console.WriteLine("|");
+
+        Console.Write("    ");
+        for (int c = startCol; c < Math.Min(startCol + viewCols, cols); c++)
+        {
+            Console.Write("+---");
+        }
+        Console.WriteLine("+");
+    }
+}
+
+string GetColumnName(int columnIndex)
+{
+    string columnName = string.Empty;
+    while (columnIndex >= 0)
+    {
+        columnName = (char)('A' + (columnIndex % 26)) + columnName;
+        columnIndex = (columnIndex / 26) - 1;
+    }
+    return columnName;
+}
+
+int GetColumnIndex(string columnName)
+{
+    int columnIndex = 0;
+    foreach (char c in columnName)
+    {
+        columnIndex = columnIndex * 26 + (c - 'A' + 1);
+    }
+    return columnIndex - 1;
 }
 
 bool BoardEmpty(Building[,] board)
