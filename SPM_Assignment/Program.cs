@@ -63,13 +63,13 @@ while (true)
             else if (gameOption == 1)
             {
                 Console.WriteLine("Starting Arcade Mode...");
-                ArcadeMode(CreateEmptyBoard(20,20), 16, 0);
+                ArcadeMode(CreateEmptyBoard(20,20), 16, 0, 1);
                 Console.WriteLine("Press [0] to exit.");
             }
             else if (gameOption == 2)
             {
                 Console.WriteLine("Starting Free Play Mode...");
-                FreePlayMode(CreateEmptyBoard(5,5), 0, 0);
+                FreePlayMode(CreateEmptyBoard(5,5), 0, 0, 1);
             }
             else if (gameOption == 3)
             {
@@ -86,6 +86,26 @@ while (true)
     else if (option == 2)
     {
         Console.WriteLine("Loading game...");
+        Console.WriteLine("Select Mode to Load Game:");
+        Console.WriteLine("1. Arcade Mode");
+        Console.WriteLine("2. Free Play Mode");
+        var LoadMode = Console.ReadLine();
+        if (LoadMode == "1")
+        {
+            var result = LoadGame("Arcade");
+            if (result.Item1 != null)
+            {
+                ArcadeMode(result.Item1, result.Item4, result.Item3, result.Item2);
+            }
+        }
+        else if (LoadMode == "2")
+        {
+            var result = LoadGame("FreePlay");
+            if (result.Item1 != null)
+            {
+                FreePlayMode(result.Item1, result.Item3, result.Item5, result.Item2);
+            }
+        }
     }
     else if (option == 3)
     {
@@ -156,40 +176,23 @@ Building[,] CreateEmptyBoard(int rows, int cols) {
             board[i, j] = null;
         }
     }
-
     return board;
 }
 
-void ArcadeMode(Building[,] board, int coins, int score)
+void ArcadeMode(Building[,] board, int coins, int score, int currentTurn)
 {
     while (true)
     {
-        Console.Clear();
         Console.WriteLine("\x1b[3J");
         Console.Clear();
 
-
-        //int rows = 20;
-        //int cols = 20;
-
-        //char[,] board = new char[rows, cols];
-
-        //for (int i = 0; i < rows; i++)
-        //{
-        //    for (int j = 0; j < cols; j++)
-        //    {
-        //        board[i, j] = ' ';
-        //    }
-        //}
-
         DisplayGrid(board);
-
         Console.WriteLine("\nCoins: " + coins + "\tScore: " + score);
 
         string[] buildings = { "Residential", "Industry", "Commercial", "Park", "Road" };
         Random random = new Random();
         string[] validChoices = { buildings[random.Next(0, buildings.Length)], buildings[random.Next(0, buildings.Length)] };
-        Console.WriteLine($"[1] {buildingsDictionary[validChoices[0]]} ({validChoices[0]})\n[2] {buildingsDictionary[validChoices[1]]} ({validChoices[1]})\n[3] Demolish building");
+        Console.WriteLine($"[1] {buildingsDictionary[validChoices[0]]} ({validChoices[0]})\n[2] {buildingsDictionary[validChoices[1]]} ({validChoices[1]})\n[3] Demolish building\n[4] Save Game");
         Console.WriteLine("Press [0] to exit to the Main Menu.");
         Building building;
 
@@ -252,7 +255,6 @@ void ArcadeMode(Building[,] board, int coins, int score)
                                     board[row, column - 1].East = building;
                                 }
                             }
-
                             //Console.WriteLine(building.North);
                             //Console.WriteLine(building.South);
                             //Console.WriteLine(building.East);
@@ -264,7 +266,6 @@ void ArcadeMode(Building[,] board, int coins, int score)
                             int generatedCoins = CalculateCoinsGenerated(board);
                             int upkeepCost = CalculateUpkeepCost(board);
                             coins += generatedCoins - upkeepCost;
-                            //Console.ReadLine();
                             if (coins <= 0 || IsBoardFull(board))
                             {
                                 //code to run when game end
@@ -273,17 +274,14 @@ void ArcadeMode(Building[,] board, int coins, int score)
                                 return;
                             }
                             break;                           
-
                         }
                         else Console.WriteLine("Tile is already occupied. Try again.");
-
                     }
                     catch (Exception e)
                     {
                         Console.WriteLine("Invalid input. Try again.");
                         Console.WriteLine(e);
                     }
-
                 }
                 break;
             }
@@ -292,16 +290,12 @@ void ArcadeMode(Building[,] board, int coins, int score)
                 if (BoardEmpty(board))
                 {
                     Console.WriteLine("No buildings to demolish!");
-
                 }
                 else
                 {
-
-
                     Console.WriteLine("Select a building to demolish (e.g. E7)");
                     while (true)
                     {
-
                         Console.Write("> ");
                         input = Console.ReadLine();
                         try
@@ -338,78 +332,34 @@ void ArcadeMode(Building[,] board, int coins, int score)
                                 board[row, column] = null;
                                 break;
                             }
-
                         }
                         catch (Exception e)
                         {
                             Console.WriteLine("Invalid input. Try again.");
-                            Console.WriteLine(e);
-
                         }
-
                     }
                     break;
                 }
-
-
-
-
+            }
+            else if(input == "4")
+            {
+                Console.WriteLine("Saving Game...");
+                SaveGame("Arcade", board, currentTurn, score, coins, 0);
+                Console.WriteLine("Game Saved!");
+                return;
             }
             else
             {
                 Console.WriteLine("Invalid input. Try again.");
             }
         }
-
-        
-
-
-
     }
-    
 }
 
 
-void FreePlayMode(Building[,] board, int score, int lostCount)
+void FreePlayMode(Building[,] board, int score, int lostCount, int currentTurn)
 {
-    
     Console.Clear();
-    //int rows = 5;
-    //int cols = 5;
-    //int expansionSize = 5;
-
-
-    //char[,] board = new char[rows, cols];
-
-    //for (int i = 0; i < rows; i++)
-    //{
-    //    for (int j = 0; j < cols; j++)
-    //    {
-    //        board[i, j] = ' ';
-    //    }
-    //}
-
-    // Display the initial city grid
-    //DisplayGrid(board);
-
-    //Console.WriteLine("\nCoins: Unlimited" + "\tScore: " + score);
-    //Console.WriteLine("Press [0] to exit to the Main Menu.");
-
-
-    //while (true)
-    //{
-    //    Console.Write("> ");
-    //    string input = Console.ReadLine();
-
-    //    if (input == "0")
-    //    {
-    //        break;
-    //    }
-    //    else
-    //    {
-    //        Console.WriteLine("Invalid input. Try again.");
-    //    }
-    //}
     int startRow = 0;
     int startCol = 0;
     int viewRows = 25;
@@ -421,24 +371,9 @@ void FreePlayMode(Building[,] board, int score, int lostCount)
 
     while (true)
     {
-
         Console.Clear();
         Console.WriteLine("\x1b[3J");
         Console.Clear();
-
-
-        //int rows = 20;
-        //int cols = 20;
-
-        //char[,] board = new char[rows, cols];
-
-        //for (int i = 0; i < rows; i++)
-        //{
-        //    for (int j = 0; j < cols; j++)
-        //    {
-        //        board[i, j] = ' ';
-        //    }
-        //}
 
         DisplayGridFreePlay(board, startRow, startCol, viewRows, viewCols);
 
@@ -447,7 +382,7 @@ void FreePlayMode(Building[,] board, int score, int lostCount)
         string[] buildings = { "Residential", "Industry", "Commercial", "Park", "Road" };
         Random random = new Random();
         string[] validChoices = { buildings[random.Next(0, buildings.Length)], buildings[random.Next(0, buildings.Length)] };
-        Console.WriteLine($"[1] {buildingsDictionary[validChoices[0]]} ({validChoices[0]})\n[2] {buildingsDictionary[validChoices[1]]} ({validChoices[1]})\n[3] Demolish building");
+        Console.WriteLine($"[1] {buildingsDictionary[validChoices[0]]} ({validChoices[0]})\n[2] {buildingsDictionary[validChoices[1]]} ({validChoices[1]})\n[3] Demolish building\n[4] Save Game");
         Console.WriteLine("Press [0] to exit to the Main Menu.");
         Building building;
 
@@ -601,8 +536,6 @@ void FreePlayMode(Building[,] board, int score, int lostCount)
                         input = Console.ReadLine().ToUpper();
                         try
                         {
-                            //int row = Convert.ToInt32(input.Substring(1, input.Length - 1)) - 1;
-                            //int column = Convert.ToChar(input.ToUpper()[0]) - 'A';
                             int firstDigitIndex = input.IndexOfAny("0123456789".ToCharArray());
                             string columnInput = input.Substring(0, firstDigitIndex);
                             string rowInput = input.Substring(firstDigitIndex);
@@ -642,13 +575,18 @@ void FreePlayMode(Building[,] board, int score, int lostCount)
                         catch (Exception e)
                         {
                             Console.WriteLine("Invalid input. Try again.");
-                            Console.WriteLine(e);
-
                         }
 
                     }
                     break;
                 }
+            }
+            else if (input == "4")
+            {
+                Console.WriteLine("Saving Game...");
+                SaveGame("FreePlay", board, currentTurn, score, 0, lostCount);
+                Console.WriteLine("Game Saved!");
+                return;
             }
             else if (input.ToUpper() == "W")
             {
@@ -731,7 +669,7 @@ void DisplayGridFreePlay(Building[,] board, int startRow, int startCol, int view
     Console.WriteLine("+");
 
     for (int r = startRow; r < Math.Min(startRow + viewRows, rows); r++)
-    {
+        {
         string rowNumber = (r + 1).ToString();
         if (rowNumber.Length < 3)
         {
@@ -1090,4 +1028,112 @@ bool IsBoardFull(Building[,] board)
         }
     }
     return true;
+}
+
+void SaveGame(string mode, Building[,] board, int turn, int score, int coins, int lostCount)
+{
+    string filePath = mode == "FreePlay" ? "saves/freeplay_save.txt" : "saves/arcade_save.txt";
+
+    using (StreamWriter writer = new StreamWriter(filePath))
+    {
+        writer.WriteLine(mode);
+        writer.WriteLine(turn);
+        writer.WriteLine(score);
+        writer.WriteLine(coins);
+        writer.WriteLine(lostCount);
+        int size = board.GetLength(0);
+        writer.WriteLine(size); // Save the board size
+
+        for (int i = 0; i < size; i++)
+        {
+            for (int j = 0; j < size; j++)
+            {
+                if (board[i, j] == null)
+                {
+                    writer.Write(" ");
+                }
+                else if (board[i, j] is Residential)
+                {
+                    writer.Write("R");
+                }
+                else if (board[i, j] is Industry)
+                {
+                    writer.Write("I");
+                }
+                else if (board[i, j] is Commercial)
+                {
+                    writer.Write("C");
+                }
+                else if (board[i, j] is Park)
+                {
+                    writer.Write("O");
+                }
+                else if (board[i, j] is Road)
+                {
+                    writer.Write("*");
+                }
+            }
+            writer.WriteLine();
+        }
+    }
+}
+
+(Building[,], int, int, int, int) LoadGame(string mode)
+{
+    string filePath = mode == "FreePlay" ? "saves/freeplay_save.txt" : "saves/arcade_save.txt";
+
+    if (!File.Exists(filePath))
+    {
+        Console.WriteLine("Save file not found.");
+        return (null, 0, 0, 0, 0);
+    }
+
+    using (StreamReader reader = new StreamReader(filePath))
+    {
+        string fileMode = reader.ReadLine();
+        if (fileMode != mode)
+        {
+            Console.WriteLine("Incorrect save file for the selected mode.");
+            return (null, 0, 0, 0, 0);
+        }
+
+        int turn = int.Parse(reader.ReadLine());
+        int score = int.Parse(reader.ReadLine());
+        int coins = int.Parse(reader.ReadLine());
+        int lostCount = int.Parse(reader.ReadLine());
+        int size = int.Parse(reader.ReadLine());
+
+        Building[,] board = new Building[size, size];
+
+        for (int i = 0; i < size; i++)
+        {
+            string line = reader.ReadLine();
+            for (int j = 0; j < size; j++)
+            {
+                switch (line[j])
+                {
+                    case 'R':
+                        board[i, j] = new Residential();
+                        break;
+                    case 'I':
+                        board[i, j] = new Industry();
+                        break;
+                    case 'C':
+                        board[i, j] = new Commercial();
+                        break;
+                    case 'O':
+                        board[i, j] = new Park();
+                        break;
+                    case '*':
+                        board[i, j] = new Road();
+                        break;
+                    default:
+                        board[i, j] = null;
+                        break;
+                }
+            }
+        }
+
+        return (board, turn, score, coins, lostCount);
+    }
 }
