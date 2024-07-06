@@ -513,7 +513,7 @@ void FreePlayMode(Building[,] board, int score, int lostCount, int currentTurn)
                     catch (Exception e)
                     {
                         Console.WriteLine("Invalid input. Try again.");
-                        Console.WriteLine(e);
+                        //Console.WriteLine(e);
                     }
 
                 }
@@ -1032,7 +1032,13 @@ bool IsBoardFull(Building[,] board)
 
 void SaveGame(string mode, Building[,] board, int turn, int score, int coins, int lostCount)
 {
-    string filePath = mode == "FreePlay" ? "saves/freeplay_save.txt" : "saves/arcade_save.txt";
+    Console.Write("Enter a name for the save file (leave empty for default): ");
+    string inputFileName = Console.ReadLine();
+    string defaultFileName = mode == "FreePlay" ? "freeplay_save.txt" : "arcade_save.txt";
+    string fileName = string.IsNullOrEmpty(inputFileName) ? defaultFileName : inputFileName + (mode == "FreePlay" ? "_FreePlay.txt" : "_Arcade.txt");
+
+    string filePath = Path.Combine("saves", fileName);
+    Directory.CreateDirectory("saves"); // Ensure the directory exists
 
     using (StreamWriter writer = new StreamWriter(filePath))
     {
@@ -1080,21 +1086,42 @@ void SaveGame(string mode, Building[,] board, int turn, int score, int coins, in
 
 (Building[,], int, int, int, int) LoadGame(string mode)
 {
-    string filePath = mode == "FreePlay" ? "saves/freeplay_save.txt" : "saves/arcade_save.txt";
-
-    if (!File.Exists(filePath))
+    Console.WriteLine("Available save files:");
+    ListSaveFiles();
+    Console.Write("\nEnter the name of the save file to load\nYou do not need to add _Arcade.txt / _FreePlay.txt\n: ");
+    string inputFileName = Console.ReadLine();
+    string fileName = string.IsNullOrEmpty(inputFileName) ? (mode == "FreePlay" ? "freeplay_save.txt" : "arcade_save.txt") : inputFileName + (mode == "FreePlay" ? "_FreePlay.txt" : "_Arcade.txt");
+    fileName = Path.Combine("saves", fileName);
+    if (!File.Exists(fileName))
     {
         Console.WriteLine("Save file not found.");
-        return (null, 0, 0, 0, 0);
+        while (true)
+        {
+            Console.Write("\nEnter [0] to return to main menu ");
+            string input = Console.ReadLine();
+            if (input == "0")
+            {
+                return (null, 0, 0, 0, 0);
+            }
+        }
     }
+    
 
-    using (StreamReader reader = new StreamReader(filePath))
+    using (StreamReader reader = new StreamReader(fileName))
     {
         string fileMode = reader.ReadLine();
         if (fileMode != mode)
         {
             Console.WriteLine("Incorrect save file for the selected mode.");
-            return (null, 0, 0, 0, 0);
+            while (true)
+            {
+                Console.Write("\nEnter [0] to return to main menu ");
+                string input = Console.ReadLine();
+                if (input == "0")
+                {
+                    return (null, 0, 0, 0, 0);
+                }
+            }
         }
 
         int turn = int.Parse(reader.ReadLine());
@@ -1135,5 +1162,21 @@ void SaveGame(string mode, Building[,] board, int turn, int score, int coins, in
         }
 
         return (board, turn, score, coins, lostCount);
+    }
+}
+
+void ListSaveFiles()
+{
+    string[] files = Directory.GetFiles("saves", "*.txt");
+    if (files.Length == 0)
+    {
+        Console.WriteLine("No save files found.");
+        return;
+    }
+
+    Console.WriteLine("Save files:");
+    foreach (string file in files)
+    {
+        Console.WriteLine(Path.GetFileName(file));
     }
 }
