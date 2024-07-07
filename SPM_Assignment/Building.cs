@@ -20,6 +20,18 @@ namespace SPM_Assignment
         private Building west;
         public Building West { get; set; }
 
+        private Building northEast;
+        public Building NorthEast { get; set; }
+
+        private Building southEast;
+        public Building SouthEast { get; set; }
+
+        private Building northWest;
+        public Building NorthWest { get; set; }
+
+        private Building southWest;
+        public Building SouthWest { get; set; }
+
         public Building() { }
 
         public abstract int GenerateCoins(Building adjacentBuilding);

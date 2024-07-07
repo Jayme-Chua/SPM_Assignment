@@ -4,6 +4,7 @@ using System.Linq;
 using System.Globalization;
 
 using SPM_Assignment;
+using System.Data.Common;
 
 Dictionary<string, Building> buildingsDictionary = new Dictionary<string, Building>();
 buildingsDictionary.Add("Residential", new Residential());
@@ -181,6 +182,7 @@ Building[,] CreateEmptyBoard(int rows, int cols) {
 
 void ArcadeMode(Building[,] board, int coins, int score, int currentTurn)
 {
+    bool firstTurn = true;
     while (true)
     {
         Console.WriteLine("\x1b[3J");
@@ -217,65 +219,151 @@ void ArcadeMode(Building[,] board, int coins, int score, int currentTurn)
                         int row = Convert.ToInt32(input.Substring(1, input.Length - 1)) - 1;
                         int column = Convert.ToChar(input.ToUpper()[0]) - 'A';
 
-                        if (board[row, column] == null)
+                        bool north = true;
+                        bool south = true;
+                        bool east = true;
+                        bool west = true;
+                        bool northEast = true;
+                        bool southEast = true;
+                        bool northWest = true;
+                        bool southWest = true;
+
+                        if (row == 0 || board[row - 1, column] == null)
                         {
-                            if (row + 1 != 1)
-                            {
-                                building.North = board[row - 1, column];
-
-                                if (board[row - 1, column] != null)
-                                {
-                                    board[row - 1, column].South = building;
-                                }
-                            }
-                            if (row + 1 != 20)
-                            {
-                                building.South = board[row + 1, column];
-
-                                if (board[row + 1, column] != null)
-                                {
-                                    board[row + 1, column].North = building;
-                                }
-                            }
-                            if (input.ToUpper()[0] != 'T')
-                            {
-                                building.East = board[row, column + 1];
-
-                                if (board[row, column + 1] != null)
-                                {
-                                    board[row, column + 1].West = building;
-                                }
-                            }
-                            if (input.ToUpper()[0] != 'A')
-                            {
-                                building.West = board[row, column - 1];
-
-                                if (board[row, column - 1] != null)
-                                {
-                                    board[row, column - 1].East = building;
-                                }
-                            }
-                            //Console.WriteLine(building.North);
-                            //Console.WriteLine(building.South);
-                            //Console.WriteLine(building.East);
-                            //Console.WriteLine(building.West);
-                            board[row, column] = building;
-                            coins--;
-                            score += CalculateScore(building, board);
-                            currentTurn++;
-                            int generatedCoins = CalculateCoinsGenerated(board);
-                            int upkeepCost = CalculateUpkeepCost(board);
-                            coins += generatedCoins - upkeepCost;
-                            if (coins <= 0 || IsBoardFull(board))
-                            {
-                                //code to run when game end
-                                //save high score
-                                EndGame(arcadeFilePath, score);
-                                return;
-                            }
-                            break;                           
+                            north = false;
                         }
-                        else Console.WriteLine("Tile is already occupied. Try again.");
+                        if ((row == 0 || column == 0) || board[row - 1, column - 1] == null)
+                        {
+                            northWest = false;
+                        }
+                        if ((row == 0 || column == 19) || board[row - 1, column + 1] == null)
+                        {
+                            northEast = false;
+                        }
+                        if (row == 19 || board[row + 1, column] == null)
+                        {
+                            south = false;
+                        }
+                        if ((row == 19 || column == 0) || board[row + 1, column - 1] == null)
+                        {
+                            southWest = false;
+                        }
+                        if ((row == 19 || column == 19) || board[row + 1, column + 1] == null)
+                        {
+                            southEast = false;
+                        }
+                        if (column == 0 || board[row, column - 1] == null)
+                        {
+                            west = false;
+                        }
+                        if (column == 19 || board[row, column + 1] == null)
+                        {
+                            east = false;
+                        }
+                        if (firstTurn || north || northWest || northEast || south || southWest || southEast || west || east)
+                        {
+
+                            if (board[row, column] == null)
+                            {
+                                if (row + 1 != 1)
+                                {
+                                    building.North = board[row - 1, column];
+
+                                    if (board[row - 1, column] != null)
+                                    {
+                                        board[row - 1, column].South = building;
+                                    }
+
+                                    if (column + 1 != 1)
+                                    {
+                                        building.NorthWest = board[row - 1, column - 1];
+
+                                        if (board[row - 1, column - 1] != null)
+                                        {
+                                            board[row - 1, column - 1].SouthEast = building;
+                                        }
+                                    }
+
+                                    if (column + 1 != 20)
+                                    {
+                                        building.NorthEast = board[row - 1, column + 1];
+
+                                        if (board[row - 1, column + 1] != null)
+                                        {
+                                            board[row - 1, column + 1].SouthWest = building;
+                                        }
+                                    }
+                                }
+                                if (row + 1 != 20)
+                                {
+                                    building.South = board[row + 1, column];
+
+                                    if (board[row + 1, column] != null)
+                                    {
+                                        board[row + 1, column].North = building;
+                                    }
+
+                                    if (column + 1 != 1)
+                                    {
+                                        building.SouthWest = board[row + 1, column - 1];
+
+                                        if (board[row + 1, column - 1] != null)
+                                        {
+                                            board[row + 1, column - 1].NorthEast = building;
+                                        }
+                                    }
+
+                                    if (column + 1 != 20)
+                                    {
+                                        building.SouthEast = board[row + 1, column + 1];
+
+                                        if (board[row + 1, column + 1] != null)
+                                        {
+                                            board[row + 1, column + 1].NorthWest = building;
+                                        }
+                                    }
+                                }
+                                if (input.ToUpper()[0] != 'T')
+                                {
+                                    building.East = board[row, column + 1];
+
+                                    if (board[row, column + 1] != null)
+                                    {
+                                        board[row, column + 1].West = building;
+                                    }
+                                }
+                                if (input.ToUpper()[0] != 'A')
+                                {
+                                    building.West = board[row, column - 1];
+
+                                    if (board[row, column - 1] != null)
+                                    {
+                                        board[row, column - 1].East = building;
+                                    }
+                                }
+                                //Console.WriteLine(building.North);
+                                //Console.WriteLine(building.South);
+                                //Console.WriteLine(building.East);
+                                //Console.WriteLine(building.West);
+                                board[row, column] = building;
+                                coins--;
+                                score += CalculateScore(building, board);
+                                currentTurn++;
+                                int generatedCoins = CalculateCoinsGenerated(board);
+                                int upkeepCost = CalculateUpkeepCost(board);
+                                coins += generatedCoins - upkeepCost;
+                                if (coins <= 0 || IsBoardFull(board))
+                                {
+                                    //code to run when game end
+                                    //save high score
+                                    EndGame(arcadeFilePath, score);
+                                    return;
+                                }
+                                break;
+                            }
+                            else Console.WriteLine("Tile is already occupied. Try again.");
+                        }
+                        else Console.WriteLine("Building must be placed adjacent to another building. Try again.");
                     }
                     catch (Exception e)
                     {
@@ -313,11 +401,15 @@ void ArcadeMode(Building[,] board, int coins, int score, int currentTurn)
                                 if (row != 1)
                                 {
                                     if (board[row, column].North != null) board[row, column].North.South = null;
+                                    if (board[row, column].NorthEast != null) board[row, column].NorthEast.SouthWest = null;
+                                    if (board[row, column].NorthWest != null) board[row, column].NorthWest.SouthEast = null;
                                 }
 
                                 if (row != 20)
                                 {
                                     if (board[row, column].South != null) board[row, column].South.North = null;
+                                    if (board[row, column].SouthEast != null) board[row, column].SouthEast.NorthWest = null;
+                                    if (board[row, column].SouthWest != null) board[row, column].South.NorthEast = null;
                                 }
 
                                 if (input.ToUpper()[0] != 'T')
@@ -330,6 +422,7 @@ void ArcadeMode(Building[,] board, int coins, int score, int currentTurn)
                                     if (board[row, column].West != null) board[row, column].West.East = null;
                                 }
                                 board[row, column] = null;
+                                coins--;
                                 break;
                             }
                         }
@@ -353,6 +446,8 @@ void ArcadeMode(Building[,] board, int coins, int score, int currentTurn)
                 Console.WriteLine("Invalid input. Try again.");
             }
         }
+
+        firstTurn = false;
     }
 }
 
@@ -369,6 +464,9 @@ void FreePlayMode(Building[,] board, int score, int lostCount, int currentTurn)
     bool showBorderMessage = false;
     bool scrollMessage = false;
 
+    int generatedCoins = 0;
+    int upkeepCost = 0;
+
     while (true)
     {
         Console.Clear();
@@ -377,7 +475,13 @@ void FreePlayMode(Building[,] board, int score, int lostCount, int currentTurn)
 
         DisplayGridFreePlay(board, startRow, startCol, viewRows, viewCols);
 
-        Console.WriteLine("\nCoins: " + "Unlimited" + "\tScore: " + score);
+        int profit = generatedCoins - upkeepCost;
+        if (profit < 0)
+        {
+            profit = 0;
+        }
+
+        Console.WriteLine("\nCoins: " + "Unlimited" + "\tScore: " + score + "\tProfit: " + profit + "\tUpkeep: " + upkeepCost + "\tLosses: " + lostCount);
 
         string[] buildings = { "Residential", "Industry", "Commercial", "Park", "Road" };
         Random random = new Random();
@@ -432,40 +536,89 @@ void FreePlayMode(Building[,] board, int score, int lostCount, int currentTurn)
                         string columnInput = input.Substring(0, firstDigitIndex);
                         string rowInput = input.Substring(firstDigitIndex);
                         int col = GetColumnIndex(columnInput);
-                        int row = Convert.ToInt32(rowInput) - 1;
+                        //int row = Convert.ToInt32(rowInput) - 1;
+
+                        int row = Convert.ToInt32(input.Substring(1, input.Length - 1)) - 1;
+                        int column = Convert.ToChar(input.ToUpper()[0]) - 'A';
 
                         if (board[row, col] == null)
                         {
-                            //NOT ENOUGH INFO
-                            //building.North = board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 2, Convert.ToChar(input.ToUpper()[0]) - 'A'];
-                            //building.South = board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 0, Convert.ToChar(input.ToUpper()[0]) - 'A'];
-                            //building.East = board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 1, Convert.ToChar(input.ToUpper()[0]) - 'A' + 1];
-                            //building.West = board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 1, Convert.ToChar(input.ToUpper()[0]) - 'A' - 1];
+                            if (row + 1 != 1)
+                            {
+                                building.North = board[row - 1, column];
 
-                            //if (board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 2, Convert.ToChar(input.ToUpper()[0]) - 'A'] != null)
-                            //{
-                            //    board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 2, Convert.ToChar(input.ToUpper()[0]) - 'A'].South = building;
-                            //}
+                                if (board[row - 1, column] != null)
+                                {
+                                    board[row - 1, column].South = building;
+                                }
 
-                            //if (board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 0, Convert.ToChar(input.ToUpper()[0]) - 'A'] != null)
-                            //{
-                            //    board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 0, Convert.ToChar(input.ToUpper()[0]) - 'A'].North = building;
-                            //}
-                            //if (board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 1, Convert.ToChar(input.ToUpper()[0]) - 'A' + 1] != null)
-                            //{
-                            //    board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 1, Convert.ToChar(input.ToUpper()[0]) - 'A' + 1].West = building;
-                            //}
-                            //if (board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 1, Convert.ToChar(input.ToUpper()[0]) - 'A' - 1] != null)
-                            //{
-                            //    board[Convert.ToInt32(Convert.ToString(input.Substring(1, input.Length - 1))) - 1, Convert.ToChar(input.ToUpper()[0]) - 'A' - 1].East = building;
-                            //}
+                                if (column + 1 != 1)
+                                {
+                                    building.NorthWest = board[row - 1, column - 1];
 
+                                    if (board[row - 1, column - 1] != null)
+                                    {
+                                        board[row - 1, column - 1].SouthEast = building;
+                                    }
+                                }
 
+                                if (column + 1 != 20)
+                                {
+                                    building.NorthEast = board[row - 1, column + 1];
 
-                            //Console.WriteLine(building.North);
-                            //Console.WriteLine(building.South);
-                            //Console.WriteLine(building.East);
-                            //Console.WriteLine(building.West);
+                                    if (board[row - 1, column + 1] != null)
+                                    {
+                                        board[row - 1, column + 1].SouthWest = building;
+                                    }
+                                }
+                            }
+                            if (row + 1 != 20)
+                            {
+                                building.South = board[row + 1, column];
+
+                                if (board[row + 1, column] != null)
+                                {
+                                    board[row + 1, column].North = building;
+                                }
+
+                                if (column + 1 != 1)
+                                {
+                                    building.SouthWest = board[row + 1, column - 1];
+
+                                    if (board[row + 1, column - 1] != null)
+                                    {
+                                        board[row + 1, column - 1].NorthEast = building;
+                                    }
+                                }
+
+                                if (column + 1 != 20)
+                                {
+                                    building.SouthEast = board[row + 1, column + 1];
+
+                                    if (board[row + 1, column + 1] != null)
+                                    {
+                                        board[row + 1, column + 1].NorthWest = building;
+                                    }
+                                }
+                            }
+                            if (input.ToUpper()[0] != 'T')
+                            {
+                                building.East = board[row, column + 1];
+
+                                if (board[row, column + 1] != null)
+                                {
+                                    board[row, column + 1].West = building;
+                                }
+                            }
+                            if (input.ToUpper()[0] != 'A')
+                            {
+                                building.West = board[row, column - 1];
+
+                                if (board[row, column - 1] != null)
+                                {
+                                    board[row, column - 1].East = building;
+                                }
+                            }
 
                             if (OnBorder(board, row, col))
                             {
@@ -485,8 +638,8 @@ void FreePlayMode(Building[,] board, int score, int lostCount, int currentTurn)
                             //Console.ReadLine();
                             
 
-                            int generatedCoins = CalculateCoinsGenerated(board);
-                            int upkeepCost = CalculateUpkeepCost(board);
+                            generatedCoins = CalculateCoinsGenerated(board);
+                            upkeepCost = CalculateUpkeepCost(board);
 
                             if (upkeepCost > generatedCoins)
                             {
