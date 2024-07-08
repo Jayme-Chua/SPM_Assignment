@@ -1129,6 +1129,15 @@ List<Tuple<string, int>> LoadHighScores(string filePath)
 
 void DisplayHighScores(string filePath)
 {
+    if (!File.Exists(filePath))
+    {
+        // If the file does not exist, create an empty file
+        using (StreamWriter writer = new StreamWriter(filePath))
+        {
+            // Write header
+            writer.WriteLine("Name,Score");
+        }
+    }
     var highScores = LoadHighScores(filePath);
     Console.WriteLine("High Scores:");
     foreach (var score in highScores.OrderByDescending(s => s.Item2).Take(10))
