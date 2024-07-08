@@ -1160,6 +1160,14 @@ void DisplayHighScores(string filePath)
 
 void EndGame(string filePath, int score)
 {
+    // Ensure the file exists
+    if (!File.Exists(filePath))
+    {
+        // Create the file with an empty high score list
+        var lines = new List<string> { "Name,Score" };
+        File.WriteAllLines(filePath, lines);
+    }
+
     Console.WriteLine($"Game over. Your final score is {score}.");
 
     var highScores = LoadHighScores(filePath);
