@@ -535,13 +535,13 @@ void FreePlayMode(Building[,] board, int score, int lostCount, int currentTurn)
                         int firstDigitIndex = input.IndexOfAny("0123456789".ToCharArray());
                         string columnInput = input.Substring(0, firstDigitIndex);
                         string rowInput = input.Substring(firstDigitIndex);
-                        int col = GetColumnIndex(columnInput);
-                        //int row = Convert.ToInt32(rowInput) - 1;
+                        int column = GetColumnIndex(columnInput);
+                        int row = Convert.ToInt32(rowInput) - 1;
 
-                        int row = Convert.ToInt32(input.Substring(1, input.Length - 1)) - 1;
-                        int column = Convert.ToChar(input.ToUpper()[0]) - 'A';
+                        //int row = Convert.ToInt32(input.Substring(1, input.Length - 1)) - 1;
+                        //int column = Convert.ToChar(input.ToUpper()[0]) - 'A';
 
-                        if (board[row, col] == null)
+                        if (board[row, column] == null)
                         {
                             if (row + 1 != 1)
                             {
@@ -620,19 +620,19 @@ void FreePlayMode(Building[,] board, int score, int lostCount, int currentTurn)
                                 }
                             }
 
-                            if (OnBorder(board, row, col))
+                            if (OnBorder(board, row, column))
                             {
                                 board = ExpandGrid(board, 10);
 
                                 //The point of doing this is to shift the newly built building to its proper position after the grid expands.
                                 row += 5;
-                                col += 5;
+                                column += 5;
 
                                 expandGridMessage = "\nYou placed a building at the border, the grid has expanded.";
-                                shiftBuildingMessage = string.Format("The building you placed at {0}{1}, will now be shifted to its respective position at {2}{3}", GetColumnName(col -5), row - 4, GetColumnName(col), row + 1);
+                                shiftBuildingMessage = string.Format("The building you placed at {0}{1}, will now be shifted to its respective position at {2}{3}", GetColumnName(column -5), row - 4, GetColumnName(column), row + 1);
                             }
 
-                            board[row, col] = building;
+                            board[row, column] = building;
                             score += CalculateScore(building, board);
                             currentTurn++;
                             //Console.ReadLine();
