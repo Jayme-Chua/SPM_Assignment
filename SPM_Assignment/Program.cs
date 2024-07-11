@@ -87,24 +87,16 @@ while (true)
     else if (option == 2)
     {
         Console.WriteLine("Loading game...");
-        Console.WriteLine("Select Mode to Load Game:");
-        Console.WriteLine("1. Arcade Mode");
-        Console.WriteLine("2. Free Play Mode");
-        var LoadMode = Console.ReadLine();
-        if (LoadMode == "1")
+        var result = LoadGame();
+        if (result.Item1 != null)
         {
-            var result = LoadGame("Arcade");
-            if (result.Item1 != null)
+            if (result.Item1 == "Arcade")
             {
-                ArcadeMode(result.Item1, result.Item4, result.Item3, result.Item2);
+                ArcadeMode(result.Item2, result.Item5, result.Item4, result.Item3);
             }
-        }
-        else if (LoadMode == "2")
-        {
-            var result = LoadGame("FreePlay");
-            if (result.Item1 != null)
+            else
             {
-                FreePlayMode(result.Item1, result.Item3, result.Item5, result.Item2);
+                FreePlayMode(result.Item2, result.Item4, result.Item6, result.Item3);
             }
         }
     }
@@ -1075,7 +1067,7 @@ void Instructions()
     Console.WriteLine("|_[]__|__[]___|_||_|__<|____________;;_|_|___/\\___|_.|_|____[]___|  |");
     while(true)
     {
-        Console.Write("\nEnter [0] to return to main menu ");
+        Console.Write("\nEnter [0] to return to main menu: ");
         string input = Console.ReadLine();
         if (input == "0")
         {
@@ -1149,7 +1141,7 @@ void DisplayHighScores(string filePath)
 
     while (true)
     {
-        Console.Write("\nEnter [0] to return to main menu ");
+        Console.Write("\nEnter [0] to return to main menu: ");
         string input = Console.ReadLine();
         if (input == "0")
         {
@@ -1205,11 +1197,12 @@ void SaveGame(string mode, Building[,] board, int turn, int score, int coins, in
 {
     Console.Write("Enter a name for the save file (leave empty for default): ");
     string inputFileName = Console.ReadLine();
-    string defaultFileName = mode == "FreePlay" ? "freeplay_save.txt" : "arcade_save.txt";
-    string fileName = string.IsNullOrEmpty(inputFileName) ? defaultFileName : inputFileName + (mode == "FreePlay" ? "_FreePlay.txt" : "_Arcade.txt");
+    string defaultFileName = "save";
+    string fileName = string.IsNullOrEmpty(inputFileName) ? defaultFileName : inputFileName;
 
-    string filePath = Path.Combine("saves", fileName);
-    Directory.CreateDirectory("saves"); // Ensure the directory exists
+    string folderPath = Path.Combine("saves", mode == "FreePlay" ? "FreePlay" : "Arcade");
+    string filePath = Path.Combine(folderPath, fileName + ".txt");
+    Directory.CreateDirectory(folderPath); // Ensure the directory exists   
 
     using (StreamWriter writer = new StreamWriter(filePath))
     {
@@ -1219,7 +1212,7 @@ void SaveGame(string mode, Building[,] board, int turn, int score, int coins, in
         writer.WriteLine(coins);
         writer.WriteLine(lostCount);
         int size = board.GetLength(0);
-        writer.WriteLine(size); // Save the board size
+        writer.WriteLine(size);
 
         for (int i = 0; i < size; i++)
         {
@@ -1255,46 +1248,56 @@ void SaveGame(string mode, Building[,] board, int turn, int score, int coins, in
     }
 }
 
-(Building[,], int, int, int, int) LoadGame(string mode)
+(string, Building[,], int, int, int, int) LoadGame()
 {
     Console.WriteLine("Available save files:");
     ListSaveFiles();
-    Console.Write("\nEnter the name of the save file to load\nYou do not need to add _Arcade.txt / _FreePlay.txt\n: ");
-    string inputFileName = Console.ReadLine();
-    string fileName = string.IsNullOrEmpty(inputFileName) ? (mode == "FreePlay" ? "freeplay_save.txt" : "arcade_save.txt") : inputFileName + (mode == "FreePlay" ? "_FreePlay.txt" : "_Arcade.txt");
-    fileName = Path.Combine("saves", fileName);
-    if (!File.Exists(fileName))
+    Console.Write("\nEnter the name of the save file to load (without extension): ");
+    var inputFileName = Console.ReadLine();
+
+    if (string.IsNullOrEmpty(inputFileName))
+    {
+        Console.WriteLine("Invalid file name.");
+        while (true)
+        {
+            Console.WriteLine("Enter [0] to return to main menu: ");
+            string input = Console.ReadLine();
+            if (input == "0")
+            {
+                return (null, null, 0, 0, 0, 0);
+            }
+        }
+    }
+    string arcadeFilePath = Path.Combine("saves", "Arcade", inputFileName + ".txt");
+    string freePlayFilePath = Path.Combine("saves", "FreePlay", inputFileName + ".txt");
+
+    string fileName = null;
+    if (File.Exists(arcadeFilePath))
+    {
+        fileName = arcadeFilePath;
+    }
+    else if (File.Exists(freePlayFilePath))
+    {
+        fileName = freePlayFilePath;
+    }
+    else
     {
         Console.WriteLine("Save file not found.");
         while (true)
         {
-            Console.Write("\nEnter [0] to return to main menu ");
+            Console.WriteLine("Enter [0] to return to main menu: ");
             string input = Console.ReadLine();
             if (input == "0")
             {
-                return (null, 0, 0, 0, 0);
+                return (null, null, 0, 0, 0, 0);
             }
         }
     }
-    
+
 
     using (StreamReader reader = new StreamReader(fileName))
     {
-        string fileMode = reader.ReadLine();
-        if (fileMode != mode)
-        {
-            Console.WriteLine("Incorrect save file for the selected mode.");
-            while (true)
-            {
-                Console.Write("\nEnter [0] to return to main menu ");
-                string input = Console.ReadLine();
-                if (input == "0")
-                {
-                    return (null, 0, 0, 0, 0);
-                }
-            }
-        }
-
+        string mode = reader.ReadLine();
         int turn = int.Parse(reader.ReadLine());
         int score = int.Parse(reader.ReadLine());
         int coins = int.Parse(reader.ReadLine());
@@ -1331,23 +1334,44 @@ void SaveGame(string mode, Building[,] board, int turn, int score, int coins, in
                 }
             }
         }
-
-        return (board, turn, score, coins, lostCount);
+ 
+        return (mode, board, turn, score, coins, lostCount);
     }
 }
 
 void ListSaveFiles()
 {
-    string[] files = Directory.GetFiles("saves", "*.txt");
-    if (files.Length == 0)
+    string arcadeFolder = Path.Combine("saves", "Arcade");
+    Directory.CreateDirectory(arcadeFolder); // Ensure the directory exists  
+    string[] arcadeFiles = Directory.GetFiles(arcadeFolder, "*.txt");
+    
+    Console.WriteLine("Arcade save files:");
+    if (arcadeFiles.Length == 0)
     {
-        Console.WriteLine("No save files found.");
-        return;
+        Console.WriteLine("No Arcade save files found.");
+    }
+    else
+    {
+        foreach (string file in arcadeFiles)
+        {
+            Console.WriteLine(Path.GetFileNameWithoutExtension(file));
+        }
     }
 
-    Console.WriteLine("Save files:");
-    foreach (string file in files)
+    string freePlayFolder = Path.Combine("saves", "FreePlay");
+    Directory.CreateDirectory(freePlayFolder); // Ensure the directory exists   
+    string[] freePlayFiles = Directory.GetFiles(freePlayFolder, "*.txt");
+
+    Console.WriteLine("FreePlay save files:");
+    if (freePlayFiles.Length == 0)
     {
-        Console.WriteLine(Path.GetFileName(file));
+        Console.WriteLine("No FreePlay save files found.");
+    }
+    else
+    {
+        foreach (string file in freePlayFiles)
+        {
+            Console.WriteLine(Path.GetFileNameWithoutExtension(file));
+        }
     }
 }
