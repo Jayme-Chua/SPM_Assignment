@@ -741,11 +741,12 @@ void FreePlayMode(Building[,] board, int score, int lostCount, int currentTurn)
                 Console.WriteLine("Game Saved!");
                 return;
             }
+            //Scrolling inputs section
             else if (input.ToUpper() == "W")
             {
                 if (startRow > 0)
                 {
-                    startRow -= 25;
+                    startRow -= 10; //Scrolls up by 10 rows
                 }
                 else
                 {
@@ -757,7 +758,7 @@ void FreePlayMode(Building[,] board, int score, int lostCount, int currentTurn)
             {
                 if (startRow + viewRows < board.GetLength(0))
                 {
-                    startRow += 25;
+                    startRow += 10; //Scrolls down by 10 rows
                 }
                 else
                 {
@@ -769,7 +770,7 @@ void FreePlayMode(Building[,] board, int score, int lostCount, int currentTurn)
             {
                 if (startCol > 0)
                 {
-                    startCol -= 25;
+                    startCol -= 10; //Scrolls left by 10 columns
                 }
                 else
                 {
@@ -781,7 +782,7 @@ void FreePlayMode(Building[,] board, int score, int lostCount, int currentTurn)
             {
                 if (startCol + viewCols < board.GetLength(1))
                 {
-                    startCol += 25;
+                    startCol += 10; //Scrolls right by 10 columns
                 }
                 else
                 {
