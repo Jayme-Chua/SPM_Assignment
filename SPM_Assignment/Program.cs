@@ -70,7 +70,7 @@ while (true)
             else if (gameOption == 2)
             {
                 Console.WriteLine("Starting Free Play Mode...");
-                FreePlayMode(CreateEmptyBoard(5,5), 0, 0, 1);
+                FreePlayMode(CreateEmptyBoard(5,5), 0, 0, 1,0);
             }
             else if (gameOption == 3)
             {
@@ -96,7 +96,7 @@ while (true)
             }
             else
             {
-                FreePlayMode(result.Item2, result.Item4, result.Item6, result.Item3);
+                FreePlayMode(result.Item2, result.Item4, result.Item6, result.Item3, result.Item4);
             }
         }
     }
@@ -341,8 +341,8 @@ void ArcadeMode(Building[,] board, int coins, int score, int currentTurn)
                                 coins--;
                                 score += CalculateScore(building, board);
                                 currentTurn++;
-                                int generatedCoins = CalculateCoinsGenerated(board);
-                                int upkeepCost = CalculateUpkeepCost(board);
+                                int generatedCoins = CalculateCoinsGeneratedARC(board);
+                                int upkeepCost = CalculateUpkeepCostARC(board);
                                 coins += generatedCoins - upkeepCost;
                                 if (coins <= 0 || IsBoardFull(board))
                                 {
@@ -444,7 +444,7 @@ void ArcadeMode(Building[,] board, int coins, int score, int currentTurn)
 }
 
 
-void FreePlayMode(Building[,] board, int score, int lostCount, int currentTurn)
+void FreePlayMode(Building[,] board, int score, int lostCount, int currentTurn, int coins)
 {
     Console.Clear();
     int startRow = 0;
@@ -628,10 +628,9 @@ void FreePlayMode(Building[,] board, int score, int lostCount, int currentTurn)
                             score += CalculateScore(building, board);
                             currentTurn++;
                             //Console.ReadLine();
-                            
-
-                            generatedCoins = CalculateCoinsGenerated(board);
-                            upkeepCost = CalculateUpkeepCost(board);
+                            coins--;
+                            generatedCoins = CalculateCoinsGeneratedFP(board);
+                            upkeepCost = CalculateUpkeepCostFP(board);
 
                             if (upkeepCost > generatedCoins)
                             {
@@ -713,6 +712,7 @@ void FreePlayMode(Building[,] board, int score, int lostCount, int currentTurn)
                                     if (board[row, column].West != null) board[row, column].West.East = null;
                                 }
                                 board[row, column] = null;
+                                coins--;
                                 break;
                             }
 
@@ -996,7 +996,7 @@ static int CalculateScore(Building building, Building[,] board)
     return score;
 }
 
-static int CalculateCoinsGenerated(Building[,] board)
+static int CalculateCoinsGeneratedARC(Building[,] board)
 {
     int coinsGenerated = 0;
     int rows = board.GetLength(0);
@@ -1011,16 +1011,16 @@ static int CalculateCoinsGenerated(Building[,] board)
             {
                 // Check surrounding buildings
                 if (r > 0 && board[r - 1, c] != null) // North
-                    coinsGenerated += building.GenerateCoins(board[r - 1, c]);
+                    coinsGenerated += building.GenerateCoinsARC(board[r - 1, c]);
 
                 if (r < rows - 1 && board[r + 1, c] != null) // South
-                    coinsGenerated += building.GenerateCoins(board[r + 1, c]);
+                    coinsGenerated += building.GenerateCoinsARC(board[r + 1, c]);
 
                 if (c > 0 && board[r, c - 1] != null) // West
-                    coinsGenerated += building.GenerateCoins(board[r, c - 1]);
+                    coinsGenerated += building.GenerateCoinsARC(board[r, c - 1]);
 
                 if (c < cols - 1 && board[r, c + 1] != null) // East
-                    coinsGenerated += building.GenerateCoins(board[r, c + 1]);
+                    coinsGenerated += building.GenerateCoinsARC(board[r, c + 1]);
             }
         }
     }
@@ -1028,19 +1028,63 @@ static int CalculateCoinsGenerated(Building[,] board)
     return coinsGenerated;
 }
 
-static int CalculateUpkeepCost(Building[,] board)
+static int CalculateUpkeepCostARC(Building[,] board)
 {
     int upkeepCost = 0;
     foreach (Building building in board)
     {
         if (building != null)
         {
-            upkeepCost += building.calculateUpkeepCost(building);
+            upkeepCost += building.calculateUpkeepCostARC(building);
         }
     }
     return upkeepCost;
 }
+//Free Play Mode
+static int CalculateCoinsGeneratedFP(Building[,] board)
+{
+    int coinsGenerated = 0;
+    int rows = board.GetLength(0);
+    int cols = board.GetLength(1);
 
+    for (int r = 0; r < rows; r++)
+    {
+        for (int c = 0; c < cols; c++)
+        {
+            Building building = board[r, c];
+            if (building != null)
+            {
+                // Check surrounding buildings
+                if (r > 0 && board[r - 1, c] != null) // North
+                    coinsGenerated += building.GenerateCoinsFP(board[r - 1, c]);
+
+                if (r < rows - 1 && board[r + 1, c] != null) // South
+                    coinsGenerated += building.GenerateCoinsFP(board[r + 1, c]);
+
+                if (c > 0 && board[r, c - 1] != null) // West
+                    coinsGenerated += building.GenerateCoinsFP(board[r, c - 1]);
+
+                if (c < cols - 1 && board[r, c + 1] != null) // East
+                    coinsGenerated += building.GenerateCoinsFP(board[r, c + 1]);
+            }
+        }
+    }
+
+    return coinsGenerated;
+}
+
+static int CalculateUpkeepCostFP(Building[,] board)
+{
+    int upkeepCost = 0;
+    foreach (Building building in board)
+    {
+        if (building != null)
+        {
+            upkeepCost += building.calculateUpkeepCostFP(building);
+        }
+    }
+    return upkeepCost;
+}
 void Instructions()
 {
     Console.Clear();

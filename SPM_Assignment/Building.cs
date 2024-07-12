@@ -34,12 +34,16 @@ namespace SPM_Assignment
 
         public Building() { }
 
-        public abstract int GenerateCoins(Building adjacentBuilding);
+        public abstract int GenerateCoinsFP(Building adjacentBuilding);
 
 
         public abstract int ProvidePoints(Building adjacentBuilding);
 
-        public abstract int calculateUpkeepCost(Building adjacentBuilding);
+        public abstract int calculateUpkeepCostFP(Building adjacentBuilding);
+
+        public abstract int GenerateCoinsARC(Building adjacentBuilding);
+
+        public abstract int calculateUpkeepCostARC(Building adjacentBuilding);
 
     }
 }
