@@ -554,7 +554,7 @@ void FreePlayMode(Building[,] board, int score, int lostCount, int currentTurn)
                                     }
                                 }
 
-                                if (column + 1 != 20)
+                                if (column + 1 != board.GetLength(1))
                                 {
                                     building.NorthEast = board[row - 1, column + 1];
 
@@ -564,7 +564,7 @@ void FreePlayMode(Building[,] board, int score, int lostCount, int currentTurn)
                                     }
                                 }
                             }
-                            if (row + 1 != 20)
+                            if (row + 1 != board.GetLength(0))
                             {
                                 building.South = board[row + 1, column];
 
@@ -583,7 +583,7 @@ void FreePlayMode(Building[,] board, int score, int lostCount, int currentTurn)
                                     }
                                 }
 
-                                if (column + 1 != 20)
+                                if (column + 1 != board.GetLength(1))
                                 {
                                     building.SouthEast = board[row + 1, column + 1];
 
@@ -593,7 +593,7 @@ void FreePlayMode(Building[,] board, int score, int lostCount, int currentTurn)
                                     }
                                 }
                             }
-                            if (input.ToUpper()[0] != 'T')
+                            if (column != GetColumnIndex(GetColumnName(board.GetLength(1) - 1)) && column + 1 < board.GetLength(1))
                             {
                                 building.East = board[row, column + 1];
 
@@ -602,7 +602,7 @@ void FreePlayMode(Building[,] board, int score, int lostCount, int currentTurn)
                                     board[row, column + 1].West = building;
                                 }
                             }
-                            if (input.ToUpper()[0] != 'A')
+                            if (column != GetColumnIndex(GetColumnName(board.GetLength(0))) && column - 1 >= 0)
                             {
                                 building.West = board[row, column - 1];
 
@@ -698,17 +698,17 @@ void FreePlayMode(Building[,] board, int score, int lostCount, int currentTurn)
                                     if (board[row, column].North != null) board[row, column].North.South = null;
                                 }
 
-                                if (row != 20)
+                                if (row != board.GetLength(0))
                                 {
                                     if (board[row, column].South != null) board[row, column].South.North = null;
                                 }
 
-                                if (input.ToUpper()[0] != 'T')
+                                if (column != GetColumnIndex(GetColumnName(board.GetLength(1) - 1)))
                                 {
                                     if (board[row, column].East != null) board[row, column].East.West = null;
                                 }
 
-                                if (input.ToUpper()[0] != 'A')
+                                if (column != GetColumnIndex(GetColumnName(board.GetLength(0))))
                                 {
                                     if (board[row, column].West != null) board[row, column].West.East = null;
                                 }
