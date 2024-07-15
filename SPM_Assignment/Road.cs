@@ -28,8 +28,14 @@ namespace SPM_Assignment
 
         public override int ProvidePoints(Building adjacentBuilding)
         {
-            if (adjacentBuilding is Road)
+            if (adjacentBuilding.North is Road || adjacentBuilding.South is Road || adjacentBuilding.East is Road || adjacentBuilding.West is Road || adjacentBuilding.NorthEast is Road || adjacentBuilding.NorthWest is Road || adjacentBuilding.SouthEast is Road || adjacentBuilding.SouthWest is Road)
+            {
+                Console.WriteLine("(Road.cs)Road Check +1");
+                Console.ReadLine();
+                Console.WriteLine("(Road.cs)All Checks Complete");
+                Console.ReadLine();
                 return 1;
+            }
             return 0;
         }
         //Arcade

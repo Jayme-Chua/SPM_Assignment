@@ -989,6 +989,19 @@ static int CalculateScore(Building building, Building[,] board)
 
                 if (c < cols - 1 && board[r, c + 1] != null) // East
                     score += building.ProvidePoints(board[r, c + 1]);
+
+                // Diagonal checks
+                if (r > 0 && c < cols - 1 && board[r - 1, c + 1] != null) // Northeast
+                    score += building.ProvidePoints(board[r - 1, c + 1]);
+
+                if (r > 0 && c > 0 && board[r - 1, c - 1] != null) // Northwest
+                    score += building.ProvidePoints(board[r - 1, c - 1]);
+
+                if (r < rows - 1 && c < cols - 1 && board[r + 1, c + 1] != null) // Southeast
+                    score += building.ProvidePoints(board[r + 1, c + 1]);
+
+                if (r < rows - 1 && c > 0 && board[r + 1, c - 1] != null) // Southwest
+                    score += building.ProvidePoints(board[r + 1, c - 1]);
             }
         }
     }
@@ -1021,6 +1034,19 @@ static int CalculateCoinsGeneratedARC(Building[,] board)
 
                 if (c < cols - 1 && board[r, c + 1] != null) // East
                     coinsGenerated += building.GenerateCoinsARC(board[r, c + 1]);
+
+                // Diagonal checks
+                if (r > 0 && c < cols - 1 && board[r - 1, c + 1] != null) // Northeast
+                    coinsGenerated += building.GenerateCoinsARC(board[r - 1, c + 1]);
+
+                if (r > 0 && c > 0 && board[r - 1, c - 1] != null) // Northwest
+                    coinsGenerated += building.GenerateCoinsARC(board[r - 1, c - 1]);
+
+                if (r < rows - 1 && c < cols - 1 && board[r + 1, c + 1] != null) // Southeast
+                    coinsGenerated += building.GenerateCoinsARC(board[r + 1, c + 1]);
+
+                if (r < rows - 1 && c > 0 && board[r + 1, c - 1] != null) // Southwest
+                    coinsGenerated += building.GenerateCoinsARC(board[r + 1, c - 1]);
             }
         }
     }
@@ -1028,19 +1054,6 @@ static int CalculateCoinsGeneratedARC(Building[,] board)
     return coinsGenerated;
 }
 
-static int CalculateUpkeepCostARC(Building[,] board)
-{
-    int upkeepCost = 0;
-    foreach (Building building in board)
-    {
-        if (building != null)
-        {
-            upkeepCost += building.calculateUpkeepCostARC(building);
-        }
-    }
-    return upkeepCost;
-}
-//Free Play Mode
 static int CalculateCoinsGeneratedFP(Building[,] board)
 {
     int coinsGenerated = 0;
@@ -1066,11 +1079,37 @@ static int CalculateCoinsGeneratedFP(Building[,] board)
 
                 if (c < cols - 1 && board[r, c + 1] != null) // East
                     coinsGenerated += building.GenerateCoinsFP(board[r, c + 1]);
+
+                // Diagonal checks
+                if (r > 0 && c < cols - 1 && board[r - 1, c + 1] != null) // Northeast
+                    coinsGenerated += building.GenerateCoinsFP(board[r - 1, c + 1]);
+
+                if (r > 0 && c > 0 && board[r - 1, c - 1] != null) // Northwest
+                    coinsGenerated += building.GenerateCoinsFP(board[r - 1, c - 1]);
+
+                if (r < rows - 1 && c < cols - 1 && board[r + 1, c + 1] != null) // Southeast
+                    coinsGenerated += building.GenerateCoinsFP(board[r + 1, c + 1]);
+
+                if (r < rows - 1 && c > 0 && board[r + 1, c - 1] != null) // Southwest
+                    coinsGenerated += building.GenerateCoinsFP(board[r + 1, c - 1]);
             }
         }
     }
 
     return coinsGenerated;
+}
+
+static int CalculateUpkeepCostARC(Building[,] board)
+{
+    int upkeepCost = 0;
+    foreach (Building building in board)
+    {
+        if (building != null)
+        {
+            upkeepCost += building.calculateUpkeepCostARC(building);
+        }
+    }
+    return upkeepCost;
 }
 
 static int CalculateUpkeepCostFP(Building[,] board)
