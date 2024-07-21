@@ -174,15 +174,18 @@ Building[,] CreateEmptyBoard(int rows, int cols) {
 
 void ArcadeMode(Building[,] board, int coins, int score, int currentTurn)
 {
-    bool firstTurn = true;
+    bool boardEmpty = true;
     while (true)
     {
+        // Clear Terminal
         Console.WriteLine("\x1b[3J");
         Console.Clear();
 
+        // Display board, coins and score
         DisplayGrid(board);
         Console.WriteLine("\nCoins: " + coins + "\tScore: " + score);
 
+        // Randomise building options, store and display them
         string[] buildings = { "Residential", "Industry", "Commercial", "Park", "Road" };
         Random random = new Random();
         string[] validChoices = { buildings[random.Next(0, buildings.Length)], buildings[random.Next(0, buildings.Length)] };
@@ -194,12 +197,15 @@ void ArcadeMode(Building[,] board, int coins, int score, int currentTurn)
         {
             Console.Write("> ");
             string input = Console.ReadLine();
+            // Player chooses to exit
             if (input == "0")
             {
                 return;
             } 
+            // Player chooses one of the randomised buildings to place down
             else if (input == "1" || input == "2")
             {
+                // Get the building the player chose
                 building = buildingsDictionary[validChoices[Convert.ToInt32(input) - 1]];
                 Console.WriteLine("Select a location (e.g. E7)");
                 while (true)
@@ -208,9 +214,12 @@ void ArcadeMode(Building[,] board, int coins, int score, int currentTurn)
                     input = Console.ReadLine();
                     try
                     {
+                        // Extract all characters from player input excluding the first letter and subtract 1 to get the row index chosen
                         int row = Convert.ToInt32(input.Substring(1, input.Length - 1)) - 1;
+                        // Extract the first letter and get the column index based on the letter chosen
                         int column = Convert.ToChar(input.ToUpper()[0]) - 'A';
 
+                        
                         bool north = true;
                         bool south = true;
                         bool east = true;
@@ -220,91 +229,111 @@ void ArcadeMode(Building[,] board, int coins, int score, int currentTurn)
                         bool northWest = true;
                         bool southWest = true;
 
+                        // Check if north tile is occupied
                         if (row == 0 || board[row - 1, column] == null)
                         {
                             north = false;
                         }
+                        // Check if northwest tile is occupied
                         if ((row == 0 || column == 0) || board[row - 1, column - 1] == null)
                         {
                             northWest = false;
                         }
+                        // Check if northeast tile is occupied
                         if ((row == 0 || column == 19) || board[row - 1, column + 1] == null)
                         {
                             northEast = false;
                         }
+                        // Check if south tile is occupied
                         if (row == 19 || board[row + 1, column] == null)
                         {
                             south = false;
                         }
+                        // Check if southwest tile is occupied
                         if ((row == 19 || column == 0) || board[row + 1, column - 1] == null)
                         {
                             southWest = false;
                         }
+                        // Check if southeast tile is occupied
                         if ((row == 19 || column == 19) || board[row + 1, column + 1] == null)
                         {
                             southEast = false;
                         }
+                        // Check if west tile is occupied
                         if (column == 0 || board[row, column - 1] == null)
                         {
                             west = false;
                         }
+                        // Check if east tile is occupied
                         if (column == 19 || board[row, column + 1] == null)
                         {
                             east = false;
                         }
-                        if (firstTurn || north || northWest || northEast || south || southWest || southEast || west || east)
+                        // Check if board is completely empty OR at least one of the surrounding tiles is occupied
+                        if (boardEmpty || north || northWest || northEast || south || southWest || southEast || west || east)
                         {
-
+                            // Check if tile player chose is occupied
                             if (board[row, column] == null)
                             {
+                                // Check if tile is on the first row
                                 if (row + 1 != 1)
                                 {
                                     building.North = board[row - 1, column];
 
+                                    // Check if north tile is occupied
                                     if (board[row - 1, column] != null)
                                     {
                                         board[row - 1, column].South = building;
                                     }
 
+                                    // Check if tile is on the first column
                                     if (column + 1 != 1)
                                     {
                                         building.NorthWest = board[row - 1, column - 1];
 
+                                        // Check if northwest tile is occupied
                                         if (board[row - 1, column - 1] != null)
                                         {
                                             board[row - 1, column - 1].SouthEast = building;
                                         }
                                     }
 
+                                    // Check if tile is on the last column
                                     if (column + 1 != 20)
                                     {
                                         building.NorthEast = board[row - 1, column + 1];
 
+                                        // Check if northeast tile is occupied
                                         if (board[row - 1, column + 1] != null)
                                         {
                                             board[row - 1, column + 1].SouthWest = building;
                                         }
                                     }
                                 }
+                                // Check if tile is on the last row
                                 if (row + 1 != 20)
                                 {
                                     building.South = board[row + 1, column];
 
+                                    // Check if south tile is occupied
                                     if (board[row + 1, column] != null)
                                     {
                                         board[row + 1, column].North = building;
                                     }
-
+                                    
+                                    // Check if tile is on the first column
                                     if (column + 1 != 1)
                                     {
                                         building.SouthWest = board[row + 1, column - 1];
 
+                                        // Check if southwest tile is occupied
                                         if (board[row + 1, column - 1] != null)
                                         {
                                             board[row + 1, column - 1].NorthEast = building;
                                         }
                                     }
 
+                                    // Check if tile is on the last column
                                     if (column + 1 != 20)
                                     {
                                         building.SouthEast = board[row + 1, column + 1];
@@ -315,19 +344,23 @@ void ArcadeMode(Building[,] board, int coins, int score, int currentTurn)
                                         }
                                     }
                                 }
+                                // Check if tile is on the last column
                                 if (input.ToUpper()[0] != 'T')
                                 {
                                     building.East = board[row, column + 1];
 
+                                    // Check if east tile is occupied
                                     if (board[row, column + 1] != null)
                                     {
                                         board[row, column + 1].West = building;
                                     }
                                 }
+                                // Check if tile is on the first column
                                 if (input.ToUpper()[0] != 'A')
                                 {
                                     building.West = board[row, column - 1];
 
+                                    // Check if west tile is occupied
                                     if (board[row, column - 1] != null)
                                     {
                                         board[row, column - 1].East = building;
@@ -360,11 +393,12 @@ void ArcadeMode(Building[,] board, int coins, int score, int currentTurn)
                     catch (Exception e)
                     {
                         Console.WriteLine("Invalid input. Try again.");
-                        Console.WriteLine(e);
+                        //Console.WriteLine(e);
                     }
                 }
                 break;
             }
+            // Player chooses to demolish a building
             else if (input == "3")
             {
                 if (BoardEmpty(board))
@@ -439,7 +473,8 @@ void ArcadeMode(Building[,] board, int coins, int score, int currentTurn)
             }
         }
 
-        firstTurn = false;
+        if (BoardEmpty(board)) boardEmpty = true;
+        else boardEmpty = false;
     }
 }
 
