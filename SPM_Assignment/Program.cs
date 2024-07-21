@@ -473,7 +473,9 @@ void FreePlayMode(Building[,] board, int score, int lostCount, int currentTurn, 
             profit = 0;
         }
 
-        Console.WriteLine("\nCoins: " + "Unlimited" + "\tScore: " + score + "\tProfit: " + profit + "\tUpkeep: " + upkeepCost + "\tLosses: " + lostCount);
+        string gridSize = board.GetLength(0) + "x" + board.GetLength(1);
+
+        Console.WriteLine("\nCoins: " + "Unlimited" + "\tScore: " + score + "\tProfit: " + profit + "\tUpkeep: " + upkeepCost + "\tLosses: " + lostCount +"\tGridSize: " + gridSize);
 
         string[] buildings = { "Residential", "Industry", "Commercial", "Park", "Road" };
         Random random = new Random();
@@ -797,7 +799,34 @@ void DisplayGridFreePlay(Building[,] board, int startRow, int startCol, int view
     int rows = board.GetLength(0);
     int cols = board.GetLength(1);
 
-    Console.Write("     ");
+    string wIndicator = " ";
+    string sIndicator = " ";
+
+    if (startRow > 0)
+    {
+        wIndicator = "^";
+    }
+
+    if (startRow + viewRows < board.GetLength(0))
+    {
+        sIndicator = "v";
+    }
+
+        Console.Write("     ");
+    for (int c = startCol; c < viewCols; c++)
+    {
+        if(c == (viewCols + 1) /2 + startCol)
+        {
+            Console.Write("  {0}  ", wIndicator);
+        }
+        else
+        {
+            Console.Write("    ");
+        }
+    }
+    Console.Write("\n");
+
+    Console.Write("          ");
     for (int c = startCol; c < Math.Min(startCol + viewCols, cols); c++)
     {
         string columnLabel = GetColumnName(c);
@@ -807,7 +836,7 @@ void DisplayGridFreePlay(Building[,] board, int startRow, int startCol, int view
     }
     Console.WriteLine();
 
-    Console.Write("    ");
+    Console.Write("         ");
     for (int c = startCol; c < Math.Min(startCol + viewCols, cols); c++)
     {
         Console.Write("+---");
@@ -817,13 +846,29 @@ void DisplayGridFreePlay(Building[,] board, int startRow, int startCol, int view
     for (int r = startRow; r < Math.Min(startRow + viewRows, rows); r++)
         {
         string rowNumber = (r + 1).ToString();
+        string aIndicator = " ";
+        string dIndicator = " ";
+        if (r == (viewRows)/2 + startRow)
+        {
+            if (startCol > 0)
+            {
+                aIndicator = "<";
+            }
+
+            if (startCol + viewCols < board.GetLength(1))
+            {
+                dIndicator = ">";
+            }
+        }
+        
+
         if (rowNumber.Length < 3)
         {
-            Console.Write(" " + (r + 1).ToString("D2") + " ");
+            Console.Write("    {0} " + (r + 1).ToString("D2") + " ",aIndicator);
         }
         else
         {
-            Console.Write(" " + (r + 1).ToString("D2"));
+            Console.Write("      " + (r + 1).ToString("D2"));
         }
 
         for (int c = startCol; c < Math.Min(startCol + viewCols, cols); c++)
@@ -840,14 +885,26 @@ void DisplayGridFreePlay(Building[,] board, int startRow, int startCol, int view
                 Console.ResetColor();
             }
         }
-        Console.WriteLine("|");
+        Console.WriteLine("| {0}",dIndicator);
 
-        Console.Write("    ");
+        Console.Write("         ");
         for (int c = startCol; c < Math.Min(startCol + viewCols, cols); c++)
         {
             Console.Write("+---");
         }
         Console.WriteLine("+");
+    }
+    Console.Write("     ");
+    for (int c = startCol; c < viewCols; c++)
+    {
+        if (c == (viewCols + 1) / 2 + startCol)
+        {
+            Console.Write("  {0}  ",sIndicator);
+        }
+        else
+        {
+            Console.Write("    ");
+        }
     }
 }
 
