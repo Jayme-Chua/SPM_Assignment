@@ -37,20 +37,14 @@ namespace SPM_Assignment
         public override int ProvidePoints(Building adjacentBuilding)
         {
             int score = 0;
-            if (adjacentBuilding.North is Park || adjacentBuilding.South is Park || adjacentBuilding.East is Park || adjacentBuilding.West is Park || adjacentBuilding.NorthEast is Park || adjacentBuilding.NorthWest is Park || adjacentBuilding.SouthEast is Park || adjacentBuilding.SouthWest is Park)
+            if (adjacentBuilding is Park)
             {
-                Console.WriteLine("(Park.cs) Park Check +1");
-                Console.ReadLine();
                 score+= 1;
             }
-            if (adjacentBuilding.North is Residential || adjacentBuilding.South is Residential || adjacentBuilding.East is Residential || adjacentBuilding.West is Residential || adjacentBuilding.NorthEast is Residential || adjacentBuilding.NorthWest is Residential || adjacentBuilding.SouthEast is Residential || adjacentBuilding.SouthWest is Residential)
+            if (adjacentBuilding is Residential)
             {
-                Console.WriteLine("(Park.cs)Residential Check +2");
-                Console.ReadLine();
                 score += 2;
             }
-            Console.WriteLine("(Park.cs)All Checks Complete");
-            Console.ReadLine();
             return score;
         }
     }

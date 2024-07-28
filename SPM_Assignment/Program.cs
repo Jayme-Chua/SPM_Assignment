@@ -193,6 +193,7 @@ void ArcadeMode(Building[,] board, int coins, int score, int currentTurn)
         Console.WriteLine("Press [0] to exit to the Main Menu.");
         Building building;
 
+
         while (true)
         {
             Console.Write("> ");
@@ -370,13 +371,17 @@ void ArcadeMode(Building[,] board, int coins, int score, int currentTurn)
                                 //Console.WriteLine(building.South);
                                 //Console.WriteLine(building.East);
                                 //Console.WriteLine(building.West);
+                                //Get new Building
                                 board[row, column] = building;
+                                //Cost of placement
                                 coins--;
+                                
                                 score += CalculateScore(building, board);
-                                currentTurn++;
                                 int generatedCoins = CalculateCoinsGeneratedARC(board);
                                 int upkeepCost = CalculateUpkeepCostARC(board);
                                 coins += generatedCoins - upkeepCost;
+                                
+                                currentTurn++;
                                 if (coins <= 0 || IsBoardFull(board))
                                 {
                                     //code to run when game end
@@ -1054,7 +1059,7 @@ void DisplayGrid(Building[,] board)
         {
             Console.Write("+---");
         }
-        Console.WriteLine("+");
+        Console.WriteLine("+"); 
     }
 }
 static int CalculateScore(Building building, Building[,] board)
